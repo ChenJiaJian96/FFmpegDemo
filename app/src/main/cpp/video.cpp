@@ -80,7 +80,7 @@ jobject createBitmap(JNIEnv *env, int width, int height) {
   jmethodID createBitmapFunction = env->GetStaticMethodID(bitmapCls,
                                                           "createBitmap",
                                                           "(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;");
-  jstring configName = env->NewStringUTF("RGB_565");
+  jstring configName = env->NewStringUTF("ARGB_8888");
   jclass bitmapConfigClass = env->FindClass("android/graphics/Bitmap$Config");
   jmethodID
       valueOfBitmapConfigFunction = env->GetStaticMethodID(bitmapConfigClass,
@@ -102,7 +102,7 @@ jobject createBitmap(JNIEnv *env, int width, int height) {
 jobject convert_bitmap_by_frame(JNIEnv *env,
                                 int width,
                                 int height,
-                                AVFrame *pFrame_rgb) {
+                                const uint8_t *pFrame_rgb) {
   LOGD("start converting")
   jobject bitmap = createBitmap(env, width, height);
   void *pixels;
@@ -119,7 +119,7 @@ jobject convert_bitmap_by_frame(JNIEnv *env,
     return nullptr;
   }
 
-  memcpy(pixels, pFrame_rgb->data, width * height * sizeof(u_int32_t));
+  memcpy(pixels, pFrame_rgb, width * height * sizeof(u_int32_t));
   AndroidBitmap_unlockPixels(env, bitmap);
   return bitmap;
 }
@@ -392,8 +392,8 @@ Java_com_igniter_ffmpeg_VideoManager_capture(JNIEnv *env,
   int dst_height = src_height;
   int numBytes = av_image_get_buffer_size(fmt, dst_width, dst_height, 1);
   auto *buffer = (uint8_t *) av_malloc(numBytes * sizeof(uint8_t));
-  av_image_fill_arrays(pFrame->data,
-                       pFrame->linesize,
+  av_image_fill_arrays(pFrame_rgb->data,
+                       pFrame_rgb->linesize,
                        buffer, fmt,
                        dst_width, dst_height,
                        1);
@@ -484,8 +484,8 @@ Java_com_igniter_ffmpeg_VideoManager_capture(JNIEnv *env,
 
     // region 生成 bitmap 并回调 bitmap 对象
     // 图像数据已经保存至 frame_rgb 中，用于生成 bitmap 数据
-    jobject bitmap =
-        convert_bitmap_by_frame(env, dst_width, dst_height, pFrame_rgb);
+    jobject
+        bitmap = convert_bitmap_by_frame(env, dst_width, dst_height, buffer);
     if (bitmap == nullptr) {
       LOGE("convert to bitmap failed.")
     }
@@ -512,6 +512,6 @@ Java_com_igniter_ffmpeg_VideoManager_capture(JNIEnv *env,
   sws_freeContext(sws_context);
   avcodec_close(video_codec_context);
   avcodec_parameters_free(&video_codec_params);
-  avformat_close_input(&format_context);
+//  avformat_close_input(&format_context);
   // endregion
 }

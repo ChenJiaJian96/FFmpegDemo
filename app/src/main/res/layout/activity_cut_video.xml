@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <VideoView
+            android:id="@+id/videoView"
+            android:layout_marginTop="30dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="400dp" />
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+        <Button
+                android:id="@+id/but"
+                android:text="从系统选择视频"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        <Button
+                android:id="@+id/but_getImage"
+                android:text="生成图片"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        <Button
+                android:id="@+id/but_cutVideo"
+                android:text="裁剪视频"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="100dp" />
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <EditText
+                android:textSize="12sp"
+                android:hint="请输入开始时间"
+                android:id="@+id/et_start"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content" />
+
+        <EditText
+                android:textSize="12sp"
+                android:hint="请输入结束时间"
+                android:id="@+id/et_end"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content" />
+    </LinearLayout>
+</LinearLayout>

@@ -99,11 +99,10 @@ jobject createBitmap(JNIEnv *env, int width, int height) {
   return newBitmap;
 }
 
-jobject
-convert_bitmap_by_frame(JNIEnv *env,
-                        int width,
-                        int height,
-                        AVFrame *pFrame_rgb) {
+jobject convert_bitmap_by_frame(JNIEnv *env,
+                                int width,
+                                int height,
+                                AVFrame *pFrame_rgb) {
   LOGD("start converting")
   jobject bitmap = createBitmap(env, width, height);
   void *pixels;
@@ -120,7 +119,7 @@ convert_bitmap_by_frame(JNIEnv *env,
     return nullptr;
   }
 
-  memcpy(pixels, pFrame_rgb->data, width * height * sizeof(uint16_t));
+  memcpy(pixels, pFrame_rgb->data, width * height * sizeof(u_int32_t));
   AndroidBitmap_unlockPixels(env, bitmap);
   return bitmap;
 }
@@ -244,21 +243,16 @@ Java_com_igniter_ffmpeg_VideoManager_playVideo(JNIEnv *env,
   AVFrame *rgba_frame = av_frame_alloc();
   // 数据格式转换准备
   // 输出 Buffer
-  int buffer_size =
-      av_image_get_buffer_size(AV_PIX_FMT_RGB565, videoWidth, videoHeight, 1);
+  AVPixelFormat fmt = AV_PIX_FMT_RGBA;
+  int buffer_size = av_image_get_buffer_size(fmt, videoWidth, videoHeight, 1);
   // R8 申请 Buffer 内存
   auto *out_buffer = (uint8_t *) av_malloc(buffer_size * sizeof(uint8_t));
-  av_image_fill_arrays(rgba_frame->data,
-                       rgba_frame->linesize,
-                       out_buffer,
-                       AV_PIX_FMT_RGB565,
-                       videoWidth,
-                       videoHeight,
-                       1);
+  av_image_fill_arrays(rgba_frame->data, rgba_frame->linesize, out_buffer,
+                       fmt, videoWidth, videoHeight, 1);
   // R9 数据格式转换上下文
   struct SwsContext *data_convert_context = sws_getContext(
       videoWidth, videoHeight, video_codec_context->pix_fmt,
-      videoWidth, videoHeight, AV_PIX_FMT_RGB565,
+      videoWidth, videoHeight, fmt,
       SWS_BICUBIC, nullptr, nullptr, nullptr);
   // 开始读取帧
   while (av_read_frame(format_context, packet) >= 0) {
@@ -391,25 +385,24 @@ Java_com_igniter_ffmpeg_VideoManager_capture(JNIEnv *env,
   AVFrame *pFrame = av_frame_alloc();
   AVFrame *pFrame_rgb = av_frame_alloc();
   // 分配空间存储视频帧的原始数据
+  AVPixelFormat fmt = AV_PIX_FMT_RGBA;
   int src_width = video_codec_context->width;
   int src_height = video_codec_context->height;
-  int dst_width = src_width / 2;
-  int dst_height = src_height / 2;
-  int numBytes =
-      av_image_get_buffer_size(AV_PIX_FMT_RGB24, dst_width, dst_height, 1);
+  int dst_width = src_width;
+  int dst_height = src_height;
+  int numBytes = av_image_get_buffer_size(fmt, dst_width, dst_height, 1);
   auto *buffer = (uint8_t *) av_malloc(numBytes * sizeof(uint8_t));
   av_image_fill_arrays(pFrame->data,
                        pFrame->linesize,
-                       buffer,
-                       AV_PIX_FMT_RGB24,
-                       dst_width,
-                       dst_height,
+                       buffer, fmt,
+                       dst_width, dst_height,
                        1);
   // 数据格式转换上下文
+  int swsFlags = SWS_BICUBIC;
   struct SwsContext *sws_context = sws_getContext(
       src_width, src_height, video_codec_context->pix_fmt,
-      dst_width, dst_height, AV_PIX_FMT_RGB24,
-      SWS_BICUBIC,
+      dst_width, dst_height, fmt,
+      swsFlags,
       nullptr, nullptr,
       nullptr);
   // endregion
@@ -485,12 +478,9 @@ Java_com_igniter_ffmpeg_VideoManager_capture(JNIEnv *env,
 
     LOGD("开始转换视频帧数据到图像帧数据")
     sws_scale(sws_context,
-              pFrame->data,
-              pFrame->linesize,
-              0,
-              src_height,
-              pFrame_rgb->data,
-              pFrame_rgb->linesize);
+              pFrame->data, pFrame->linesize,
+              0, src_height,
+              pFrame_rgb->data, pFrame_rgb->linesize);
 
     // region 生成 bitmap 并回调 bitmap 对象
     // 图像数据已经保存至 frame_rgb 中，用于生成 bitmap 数据

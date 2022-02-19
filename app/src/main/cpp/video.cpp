@@ -2,8 +2,6 @@
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
 #include <android/log.h>
-#include <libyuv.h>
-#include <libyuv/convert_from.h>
 
 extern "C" {
 #include "libavformat/avformat.h"
@@ -11,8 +9,6 @@ extern "C" {
 #include "libswscale/swscale.h"
 #include "libavutil/imgutils.h"
 #include "android/bitmap.h"
-#include "libyuv.h"
-#include "libyuv/convert_argb.h"
 }
 
 // Android 打印 Log
@@ -84,7 +80,7 @@ jobject createBitmap(JNIEnv *env, int width, int height) {
   jmethodID createBitmapFunction = env->GetStaticMethodID(bitmapCls,
                                                           "createBitmap",
                                                           "(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;");
-  jstring configName = env->NewStringUTF("ARGB_8888");
+  jstring configName = env->NewStringUTF("RGB_565");
   jclass bitmapConfigClass = env->FindClass("android/graphics/Bitmap$Config");
   jmethodID
       valueOfBitmapConfigFunction = env->GetStaticMethodID(bitmapConfigClass,
@@ -104,16 +100,19 @@ jobject createBitmap(JNIEnv *env, int width, int height) {
 }
 
 jobject
-convert_bitmap_by_frame(JNIEnv *env, int width, int height, AVFrame *pFrame) {
+convert_bitmap_by_frame(JNIEnv *env,
+                        int width,
+                        int height,
+                        AVFrame *pFrame_rgb) {
   LOGD("start converting")
-  jobject bitmap;
-  bitmap = createBitmap(env, width, height);
-  void *address_pixels;
-  int result = AndroidBitmap_lockPixels(env, bitmap, &address_pixels);
+  jobject bitmap = createBitmap(env, width, height);
+  void *pixels;
+  int result = AndroidBitmap_lockPixels(env, bitmap, &pixels);
   if (result < 0) {
     LOGE("Error| lockPixel error")
     return nullptr;
   }
+
   AndroidBitmapInfo info;
   result = AndroidBitmap_getInfo(env, bitmap, &info);
   if (result < 0) {
@@ -121,13 +120,7 @@ convert_bitmap_by_frame(JNIEnv *env, int width, int height, AVFrame *pFrame) {
     return nullptr;
   }
 
-  // yuv420p to argb
-  int line_size = pFrame->width * 4;
-  libyuv::I420ToABGR(pFrame->data[0], pFrame->linesize[0], // Y
-                     pFrame->data[1], pFrame->linesize[1], // U
-                     pFrame->data[2], pFrame->linesize[2], // V
-                     (uint8_t *) address_pixels, line_size,  // RGBA
-                     pFrame->width, pFrame->height);
+  memcpy(pixels, pFrame_rgb->data, width * height * sizeof(uint16_t));
   AndroidBitmap_unlockPixels(env, bitmap);
   return bitmap;
 }
@@ -252,20 +245,20 @@ Java_com_igniter_ffmpeg_VideoManager_playVideo(JNIEnv *env,
   // 数据格式转换准备
   // 输出 Buffer
   int buffer_size =
-      av_image_get_buffer_size(AV_PIX_FMT_RGBA, videoWidth, videoHeight, 1);
+      av_image_get_buffer_size(AV_PIX_FMT_RGB565, videoWidth, videoHeight, 1);
   // R8 申请 Buffer 内存
   auto *out_buffer = (uint8_t *) av_malloc(buffer_size * sizeof(uint8_t));
   av_image_fill_arrays(rgba_frame->data,
                        rgba_frame->linesize,
                        out_buffer,
-                       AV_PIX_FMT_RGBA,
+                       AV_PIX_FMT_RGB565,
                        videoWidth,
                        videoHeight,
                        1);
   // R9 数据格式转换上下文
   struct SwsContext *data_convert_context = sws_getContext(
       videoWidth, videoHeight, video_codec_context->pix_fmt,
-      videoWidth, videoHeight, AV_PIX_FMT_RGBA,
+      videoWidth, videoHeight, AV_PIX_FMT_RGB565,
       SWS_BICUBIC, nullptr, nullptr, nullptr);
   // 开始读取帧
   while (av_read_frame(format_context, packet) >= 0) {
@@ -396,24 +389,32 @@ Java_com_igniter_ffmpeg_VideoManager_capture(JNIEnv *env,
   // region 分配读取视频帧信息的存储空间
   // 分配 frame 空间存储视频帧 YUV 格式
   AVFrame *pFrame = av_frame_alloc();
+  AVFrame *pFrame_rgb = av_frame_alloc();
   // 分配空间存储视频帧的原始数据
-  int videoWidth = video_codec_context->width;
-  int videoHeight = video_codec_context->height;
+  int src_width = video_codec_context->width;
+  int src_height = video_codec_context->height;
+  int dst_width = src_width / 2;
+  int dst_height = src_height / 2;
   int numBytes =
-      av_image_get_buffer_size(AV_PIX_FMT_RGB24, videoWidth, videoHeight, 1);
+      av_image_get_buffer_size(AV_PIX_FMT_RGB24, dst_width, dst_height, 1);
   auto *buffer = (uint8_t *) av_malloc(numBytes * sizeof(uint8_t));
-  av_image_fill_arrays(pFrame->data, pFrame->linesize,
-                       buffer, AV_PIX_FMT_RGB24,
-                       videoWidth, videoHeight, 1);
+  av_image_fill_arrays(pFrame->data,
+                       pFrame->linesize,
+                       buffer,
+                       AV_PIX_FMT_RGB24,
+                       dst_width,
+                       dst_height,
+                       1);
+  // 数据格式转换上下文
+  struct SwsContext *sws_context = sws_getContext(
+      src_width, src_height, video_codec_context->pix_fmt,
+      dst_width, dst_height, AV_PIX_FMT_RGB24,
+      SWS_BICUBIC,
+      nullptr, nullptr,
+      nullptr);
   // endregion
 
   AVPacket packet;
-  // 数据格式转换上下文
-//  struct SwsContext *sws_context = sws_getContext(
-//      videoWidth, videoHeight, video_codec_context->pix_fmt,
-//      videoWidth, videoHeight, AV_PIX_FMT_RGBA,
-//      SWS_BICUBIC, nullptr, nullptr, nullptr);
-
   int64_t video_duration = format_context->duration; // 单位：AV_TIME_BASE
   LOGD("video duration %ld", video_duration)
   uint64_t interval_us = 1 * AV_TIME_BASE; // TODO: 逻辑A 间隔固定 1s
@@ -482,10 +483,19 @@ Java_com_igniter_ffmpeg_VideoManager_capture(JNIEnv *env,
     }
     // endregion
 
+    LOGD("开始转换视频帧数据到图像帧数据")
+    sws_scale(sws_context,
+              pFrame->data,
+              pFrame->linesize,
+              0,
+              src_height,
+              pFrame_rgb->data,
+              pFrame_rgb->linesize);
+
     // region 生成 bitmap 并回调 bitmap 对象
     // 图像数据已经保存至 frame_rgb 中，用于生成 bitmap 数据
-    jobject
-        bitmap = convert_bitmap_by_frame(env, videoWidth, videoHeight, pFrame);
+    jobject bitmap =
+        convert_bitmap_by_frame(env, dst_width, dst_height, pFrame_rgb);
     if (bitmap == nullptr) {
       LOGE("convert to bitmap failed.")
     }
@@ -508,6 +518,8 @@ Java_com_igniter_ffmpeg_VideoManager_capture(JNIEnv *env,
   av_free(buffer);
   av_packet_unref(&packet);
   av_frame_free(&pFrame);
+  av_frame_free(&pFrame_rgb);
+  sws_freeContext(sws_context);
   avcodec_close(video_codec_context);
   avcodec_parameters_free(&video_codec_params);
   avformat_close_input(&format_context);

@@ -14,17 +14,17 @@
             android:roundIcon="@drawable/icon_app"
             android:supportsRtl="true"
             android:usesCleartextTraffic="true"
-            android:theme="@style/Theme.FFmpeg">
+            android:theme="@style/Theme.App.FullScreen">
         <activity
                 android:exported="true"
-                android:name=".HomeActivity">
+                android:name="com.igniter.ffmpegtest.HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.igniter.ffmpeg.CaptureToolActivity" />
-        <activity android:name=".PlayVideoActivity" />
+        <activity android:name="com.igniter.ffmpegtest.CaptureToolActivity" />
+        <activity android:name="com.igniter.ffmpegtest.PlayVideoActivity" />
     </application>
 
 </manifest>

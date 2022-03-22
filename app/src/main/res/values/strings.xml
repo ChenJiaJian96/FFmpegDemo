@@ -1,3 +1,13 @@
 <resources>
-    <string name="app_name">FFmpeg个人调试工具</string>
+    <string name="app_name">FFMPEG-YYDS!</string>
+
+    <string name="app_video_info">文件名：%s\n分辨率：%d * %d\n视频总时长：%dms</string>
+    <string name="app_capture_num">抽帧数量：%d</string>
+    <string name="app_capture_duration">总用时：%dms</string>
+    <string name="app_enable_multi_thread">是否使用多线程抽帧</string>
+    <string name="app_first_capture_strategy">使用策略一：每次seek向后寻找 I 帧，然后向前解码</string>
+    <string name="app_second_capture_strategy">使用策略二：每次seek先判断 GOP，再向后寻找 I 帧，然后向前解码</string>
+    <string name="app_first_seek_strategy">使用策略一：AVSEEK_FLAG_BACKWARD</string>
+    <string name="app_second_seek_strategy">使用策略二：AVSEEK_FLAG_BYTE</string>
+    <string name="app_frame_info">index: %d\nts: %d ms\n</string>
 </resources>

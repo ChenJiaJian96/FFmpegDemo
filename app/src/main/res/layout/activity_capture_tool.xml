@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:padding="10dp"
@@ -18,23 +19,71 @@
             style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
 
     <TextView
-            android:id="@+id/file_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-    <TextView
             android:id="@+id/capture_num"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            tools:text="抽帧数量" />
 
     <TextView
             android:id="@+id/total_duration"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            tools:text="抽帧耗时" />
 
-    <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
+    <TextView
+            android:id="@+id/video_info_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="视频信息" />
+
+    <CheckBox
+            android:id="@+id/multi_thread_box"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="是否使用多线程抽帧" />
+
+    <RadioGroup
+            android:id="@+id/strategy_radio_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+        <RadioButton
+                android:id="@+id/first_strategy_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_first_capture_strategy"
+                android:checked="true" />
+
+        <RadioButton
+                android:id="@+id/second_strategy_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_second_capture_strategy" />
+    </RadioGroup>
+
+    <RadioGroup
+            android:id="@+id/seek_flag_radio_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+        <RadioButton
+                android:id="@+id/first_seek_flag_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_first_seek_strategy"
+                android:checked="true" />
+
+        <RadioButton
+                android:id="@+id/second_seek_flag_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_second_seek_strategy" />
+    </RadioGroup>
+
+    <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/bar_chart"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent" />
 
 </LinearLayout>

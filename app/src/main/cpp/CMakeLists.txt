@@ -10,7 +10,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/libs/${ANDROID_ABI})
 # 设置 jni 库目录
 set(JNI_LIBS_DIR ${CMAKE_SOURCE_DIR}/../../../libs)
 
-add_library(video SHARED video.cpp)
+add_library(video SHARED capture_frame.cpp play_video.cpp utils.cpp)
+
 # 查找系统库
 find_library(log-lib log)
 find_library(android-lib android)

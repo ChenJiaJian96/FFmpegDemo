@@ -1,5 +1,6 @@
 package com.igniter.ffmpegtest.ui
 
+import android.app.Dialog
 import android.os.Bundle
 import android.widget.Button
 import android.widget.CheckBox
@@ -19,21 +20,21 @@ import com.igniter.ffmpegtest.viewmodel.CaptureViewModel
 import com.igniter.ffmpegtest.viewmodel.CaptureViewModel.Companion.FRAME_NUM
 import com.igniter.ffmpegtest.viewmodel.BarChartViewModel
 import com.igniter.ffmpegtest.ui.chart.MyAxisValueFormatter
+import com.igniter.ffmpegtest.ui.common.CommonContentDialog
 
 class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
 
     private lateinit var progressBar: ProgressBar
-    private lateinit var captureNumView: TextView
-    private lateinit var durationView: TextView
-    private lateinit var videoInfoView: TextView
     private lateinit var multiThreadEnabledBox: CheckBox
     private lateinit var strategyRadioGroup: RadioGroup
     private lateinit var seekFlagRadioGroup: RadioGroup
     private lateinit var startCaptureBtn: Button // 视频帧列表容器
     private lateinit var barChart: BarChart // 抽帧数据展示容器
 
-    private val strategyButtonIdList = arrayListOf(R.id.first_strategy_button, R.id.second_strategy_button)
-    private val seekFlagButtonIdList = arrayListOf(R.id.first_seek_flag_button, R.id.second_seek_flag_button)
+    private val strategyButtonIdList =
+        arrayListOf(R.id.first_strategy_button, R.id.second_strategy_button)
+    private val seekFlagButtonIdList =
+        arrayListOf(R.id.first_seek_flag_button, R.id.second_seek_flag_button)
 
     private val barChartViewModel: BarChartViewModel by viewModels()
     private val captureViewModel: CaptureViewModel by viewModels()
@@ -69,16 +70,18 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
     }
 
     private fun initVideoInfoView() {
-        captureNumView = findViewById(R.id.capture_num)
-        videoInfoView = findViewById(R.id.video_info_view)
-        durationView = findViewById(R.id.total_duration)
-        captureNumView.text = getString(R.string.app_capture_num, FRAME_NUM)
-
-        captureViewModel.videoInfo.observe(this) { infoText ->
-            videoInfoView.text = infoText
-        }
-        captureViewModel.totalDuration.observe(this) { totalDurationText ->
-            durationView.text = totalDurationText
+        captureViewModel.resultData.observe(this) { dataTriple ->
+            CommonContentDialog(this).apply {
+                setTitleText(getString(R.string.app_capture_succeed))
+                setContentText(
+                    """
+                        ${dataTriple.first}
+                        ${dataTriple.second}
+                        ${dataTriple.third}
+                    """.trimIndent()
+                )
+                show()
+            }
         }
 
         captureViewModel.latestDurationData.observe(this) { durationInfo ->

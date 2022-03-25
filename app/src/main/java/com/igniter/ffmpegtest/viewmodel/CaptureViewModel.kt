@@ -30,14 +30,13 @@ class CaptureViewModel : ViewModel() {
     /**
      * 视频信息
      */
-    val videoInfo: LiveData<String> get() = _videoInfo
-    private val _videoInfo: MutableLiveData<String> = MutableLiveData("")
+    private var videoInfo: String = ""
 
     /**
      * 抽帧耗时信息
      */
-    val totalDuration: LiveData<String> get() = _totalDuration
-    private val _totalDuration: MutableLiveData<String> = MutableLiveData("")
+    val resultData: LiveData<Triple<String, String, String>> get() = _resultData
+    private val _resultData: MutableLiveData<Triple<String, String, String>> = MutableLiveData()
 
     /**
      * 本地缓存帧数量
@@ -119,14 +118,12 @@ class CaptureViewModel : ViewModel() {
                 seekFlagIndex = strategy.seekFlagIndex,
                 onBitmapCallbackListener = object : VideoManager.OnCaptureDataCallbackListener {
                     override fun onVideoInfoRetrieved(width: Int, height: Int, durationMs: Long) {
-                        _videoInfo.postValue(
-                            context.getString(
-                                R.string.app_video_info,
-                                videoPath,
-                                width,
-                                height,
-                                durationMs
-                            )
+                        videoInfo = context.getString(
+                            R.string.app_video_info,
+                            videoPath,
+                            width,
+                            height,
+                            durationMs
                         )
                     }
 
@@ -140,11 +137,13 @@ class CaptureViewModel : ViewModel() {
                         )
 
                         if (isFinished) {
-                            _totalDuration.postValue(
-                                context.getString(
-                                    R.string.app_capture_duration,
-                                    System.currentTimeMillis() - startTimeMs
-                                )
+                            val captureInfo = context.getString(R.string.app_capture_num, captureNum)
+                            val totalDuration = context.getString(
+                                R.string.app_capture_duration,
+                                System.currentTimeMillis() - startTimeMs
+                            )
+                            _resultData.postValue(
+                                Triple(captureInfo, videoInfo, totalDuration)
                             )
                         }
                     }

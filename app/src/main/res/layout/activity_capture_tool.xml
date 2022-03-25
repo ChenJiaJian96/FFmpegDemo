@@ -18,24 +18,6 @@
             android:layout_height="wrap_content"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
 
-    <TextView
-            android:id="@+id/capture_num"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="抽帧数量" />
-
-    <TextView
-            android:id="@+id/total_duration"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="抽帧耗时" />
-
-    <TextView
-            android:id="@+id/video_info_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="视频信息" />
-
     <CheckBox
             android:id="@+id/multi_thread_box"
             android:layout_width="wrap_content"

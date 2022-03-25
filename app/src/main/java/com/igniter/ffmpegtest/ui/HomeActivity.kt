@@ -1,4 +1,4 @@
-package com.igniter.ffmpegtest
+package com.igniter.ffmpegtest.ui
 
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE

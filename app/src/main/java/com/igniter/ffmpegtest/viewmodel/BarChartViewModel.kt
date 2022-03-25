@@ -1,4 +1,4 @@
-package com.igniter.ffmpegtest.chart
+package com.igniter.ffmpegtest.viewmodel
 
 import android.graphics.Color
 import androidx.lifecycle.LiveData
@@ -10,6 +10,7 @@ import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.igniter.ffmpegtest.bean.CaptureDuration
+import com.igniter.ffmpegtest.ui.chart.MyAxisValueFormatter
 import java.util.ArrayList
 
 /**

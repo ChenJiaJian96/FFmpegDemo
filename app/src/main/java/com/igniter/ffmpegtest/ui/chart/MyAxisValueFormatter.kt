@@ -1,4 +1,4 @@
-package com.igniter.ffmpegtest.chart
+package com.igniter.ffmpegtest.ui.chart
 
 import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.formatter.ValueFormatter

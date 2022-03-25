@@ -1,4 +1,4 @@
-package com.igniter.ffmpegtest
+package com.igniter.ffmpegtest.ui
 
 import android.os.Bundle
 import android.view.SurfaceHolder
@@ -6,6 +6,7 @@ import android.view.SurfaceView
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.igniter.ffmpeg.R
+import com.igniter.ffmpegtest.VideoManager
 
 class PlayVideoActivity : AppCompatActivity() {
 

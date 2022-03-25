@@ -1,4 +1,4 @@
-package com.igniter.ffmpegtest
+package com.igniter.ffmpegtest.ui
 
 import android.os.Bundle
 import android.widget.Button
@@ -15,9 +15,10 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.igniter.ffmpeg.R
-import com.igniter.ffmpegtest.CaptureViewModel.Companion.FRAME_NUM
-import com.igniter.ffmpegtest.chart.BarChartViewModel
-import com.igniter.ffmpegtest.chart.MyAxisValueFormatter
+import com.igniter.ffmpegtest.viewmodel.CaptureViewModel
+import com.igniter.ffmpegtest.viewmodel.CaptureViewModel.Companion.FRAME_NUM
+import com.igniter.ffmpegtest.viewmodel.BarChartViewModel
+import com.igniter.ffmpegtest.ui.chart.MyAxisValueFormatter
 
 class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
 

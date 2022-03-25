@@ -1,4 +1,4 @@
-package com.igniter.ffmpegtest.grid
+package com.igniter.ffmpegtest.ui.grid
 
 import android.content.Context
 import android.view.LayoutInflater

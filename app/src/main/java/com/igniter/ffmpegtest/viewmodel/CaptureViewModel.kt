@@ -1,4 +1,4 @@
-package com.igniter.ffmpegtest
+package com.igniter.ffmpegtest.viewmodel
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.igniter.ffmpeg.R
+import com.igniter.ffmpegtest.VideoManager
 import com.igniter.ffmpegtest.VideoManager.OnCaptureDataCallbackListener.Companion.STEP_OUTPUT
 import com.igniter.ffmpegtest.VideoManager.OnCaptureDataCallbackListener.Companion.STEP_RETRIEVE
 import com.igniter.ffmpegtest.VideoManager.OnCaptureDataCallbackListener.Companion.STEP_SEEK_AND_DECODE

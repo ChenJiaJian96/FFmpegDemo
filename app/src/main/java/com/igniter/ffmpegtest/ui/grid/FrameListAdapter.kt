@@ -4,18 +4,19 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.igniter.ffmpeg.R
 
 import com.igniter.ffmpegtest.bean.FrameInfo
 
-class FrameGridViewAdapter(private val context: Context, private val num: Int) : BaseAdapter() {
+class FrameListAdapter(private val context: Context, private val num: Int) :
+    RecyclerView.Adapter<FrameListAdapter.ViewHolder>() {
 
     private val frameInfoList: Array<FrameInfo?> = arrayOfNulls(num)
 
-    inner class ViewHolder(contentView: View) {
+    inner class ViewHolder(contentView: View) : RecyclerView.ViewHolder(contentView) {
         private val info: TextView = contentView.findViewById(R.id.image_info)
         private val view: ImageView = contentView.findViewById(R.id.image_view)
 
@@ -29,33 +30,23 @@ class FrameGridViewAdapter(private val context: Context, private val num: Int) :
 
     fun onBitmapUpdated(frameInfo: FrameInfo) {
         frameInfoList[frameInfo.index] = frameInfo
-        notifyDataSetChanged()
+        notifyItemChanged(frameInfo.index)
     }
-
-    override fun getCount(): Int = num
-
-    override fun getItem(position: Int): FrameInfo? = frameInfoList[position]
 
     override fun getItemId(position: Int): Long = 0
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val frameInfo = getItem(position)
-
-        val contentView = if (convertView == null) {
-            val layoutInflater = LayoutInflater.from(context)
-            val rootView = layoutInflater.inflate(R.layout.item_frame_layout, parent, false)
-            val viewHolder = ViewHolder(rootView)
-            rootView.tag = viewHolder
-            rootView
-        } else {
-            convertView
-        }
-
-        val viewHolder = contentView.tag as ViewHolder
-        frameInfo?.let {
-            viewHolder.bindBitmap(it)
-        }
-
-        return contentView
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val rootView =
+            LayoutInflater.from(parent.context).inflate(R.layout.item_frame_layout, parent, false)
+        return ViewHolder(rootView)
     }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val frameInfo = frameInfoList[position]
+        frameInfo?.let {
+            holder.bindBitmap(it)
+        }
+    }
+
+    override fun getItemCount(): Int = num
 }

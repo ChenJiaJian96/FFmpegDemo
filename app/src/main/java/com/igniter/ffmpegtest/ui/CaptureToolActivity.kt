@@ -1,14 +1,15 @@
 package com.igniter.ffmpegtest.ui
 
-import android.app.Dialog
 import android.os.Bundle
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ProgressBar
 import android.widget.RadioGroup
-import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis.XAxisPosition
@@ -21,15 +22,19 @@ import com.igniter.ffmpegtest.viewmodel.CaptureViewModel.Companion.FRAME_NUM
 import com.igniter.ffmpegtest.viewmodel.BarChartViewModel
 import com.igniter.ffmpegtest.ui.chart.MyAxisValueFormatter
 import com.igniter.ffmpegtest.ui.common.CommonContentDialog
+import com.igniter.ffmpegtest.ui.grid.FrameListAdapter
 
 class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
 
     private lateinit var progressBar: ProgressBar
+    private lateinit var frameListView: RecyclerView
     private lateinit var multiThreadEnabledBox: CheckBox
     private lateinit var strategyRadioGroup: RadioGroup
     private lateinit var seekFlagRadioGroup: RadioGroup
     private lateinit var startCaptureBtn: Button // 视频帧列表容器
     private lateinit var barChart: BarChart // 抽帧数据展示容器
+
+    private val listAdapter = FrameListAdapter(this, FRAME_NUM)
 
     private val strategyButtonIdList =
         arrayListOf(R.id.first_strategy_button, R.id.second_strategy_button)
@@ -45,6 +50,7 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
 
         initStartCaptureBtn()
         initProgressBar()
+        initRecyclerView()
         initChart()
         initVideoInfoView()
         initStrategySelections()
@@ -92,8 +98,25 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
     private fun initProgressBar() {
         progressBar = findViewById(R.id.progress_bar)
         progressBar.max = FRAME_NUM
-        captureViewModel.cacheFrameNum.observe(this) { cacheNum ->
-            progressBar.progress = cacheNum
+        captureViewModel.cacheFrameUpdatedIndex.observe(this) { _ ->
+            progressBar.progress = captureViewModel.frameInfoList.count {
+                it != null
+            }
+        }
+    }
+
+    private fun initRecyclerView() {
+        frameListView = findViewById(R.id.rv_frame_list)
+        with(frameListView) {
+            adapter = listAdapter
+            layoutManager = LinearLayoutManager(this@CaptureToolActivity).apply {
+                orientation = HORIZONTAL
+            }
+        }
+        captureViewModel.cacheFrameUpdatedIndex.observe(this) { index ->
+            captureViewModel.frameInfoList[index]?.also { newFrame ->
+                listAdapter.onBitmapUpdated(newFrame)
+            }
         }
     }
 

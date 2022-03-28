@@ -41,8 +41,8 @@ class CaptureViewModel : ViewModel() {
     /**
      * 本地缓存帧数量
      */
-    val cacheFrameNum: LiveData<Int> get() = _cacheFrameNum
-    private val _cacheFrameNum: MutableLiveData<Int> = MutableLiveData(0)
+    val cacheFrameUpdatedIndex: LiveData<Int> get() = _cacheFrameUpdatedIndex
+    private val _cacheFrameUpdatedIndex: MutableLiveData<Int> = MutableLiveData()
 
     /**
      * 最近回调的耗时数据
@@ -53,7 +53,7 @@ class CaptureViewModel : ViewModel() {
     /**
      * 本地缓存帧列表
      */
-    private val frameInfoList: Array<FrameInfo?> = arrayOfNulls(FRAME_NUM)
+    val frameInfoList: Array<FrameInfo?> = arrayOfNulls(FRAME_NUM)
 
     /**
      * 抽帧策略选择封装
@@ -179,12 +179,11 @@ class CaptureViewModel : ViewModel() {
 
     private fun clearCache() {
         frameInfoList.fill(null)
-        _cacheFrameNum.value = 0
     }
 
     private fun onBitmapUpdated(frameInfo: FrameInfo) {
         frameInfoList[frameInfo.index] = frameInfo
-        _cacheFrameNum.postValue(frameInfoList.count { it != null })
+        _cacheFrameUpdatedIndex.postValue(frameInfo.index)
     }
 
     companion object {

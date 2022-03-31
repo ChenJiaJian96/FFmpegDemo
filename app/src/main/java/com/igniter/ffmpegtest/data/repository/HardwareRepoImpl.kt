@@ -16,7 +16,7 @@ class HardwareRepoImpl: CaptureRepository {
             enableMultiThread = captureStrategy.enableMultiThread,
             strategyIndex = captureStrategy.strategyIndex,
             seekFlagIndex = captureStrategy.seekFlagIndex,
-            onBitmapCallbackListener = callback
+            callback = callback
         )
     }
 

@@ -6,19 +6,14 @@ import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
 object HardwareSolution {
 
     /**
-     * 播放视频
-     * @param path 视频路径
-     * @param surface 播放位置
+     * play video in given surface
+     *
+     * @param surface given surface
      */
-    external fun playVideo(path: String?, surface: Surface?)
+    external fun playVideo(videoPath: String, surface: Surface)
 
     /**
-     * 抽帧接口
-     * @param videoPath 视频路径
-     * @param totalNum 需要抽帧的数量
-     * @param enableMultiThread 是否开启多线程
-     * @param strategyIndex 策略选择
-     * @param onBitmapCallbackListener 抽帧回调
+     * capture frames with ffmpeg
      */
     external fun capture(
         videoPath: String,
@@ -26,6 +21,6 @@ object HardwareSolution {
         enableMultiThread: Boolean,
         strategyIndex: Int,
         seekFlagIndex: Int,
-        onBitmapCallbackListener: CaptureFrameListener
+        callback: CaptureFrameListener
     )
 }

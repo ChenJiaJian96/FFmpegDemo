@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.util.Log
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
-import com.igniter.ffmpegtest.viewmodel.CaptureViewModel.Companion.FRAME_NUM
 
 object MMRUtils {
 
@@ -18,7 +17,8 @@ object MMRUtils {
     fun captureFrames(
         filePath: String,
         totalNum: Int,
-        callback: CaptureFrameListener) {
+        callback: CaptureFrameListener
+    ) {
         MediaMetadataRetriever().use { mmr ->
             try {
                 mmr.setDataSource(filePath)

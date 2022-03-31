@@ -5,10 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.igniter.ffmpeg.R
-
 import com.igniter.ffmpegtest.bean.FrameInfo
 
 class FrameListAdapter(private val context: Context, private val num: Int) :
@@ -17,13 +16,18 @@ class FrameListAdapter(private val context: Context, private val num: Int) :
     private val frameInfoList: Array<FrameInfo?> = arrayOfNulls(num)
 
     inner class ViewHolder(contentView: View) : RecyclerView.ViewHolder(contentView) {
-        private val info: TextView = contentView.findViewById(R.id.image_info)
         private val view: ImageView = contentView.findViewById(R.id.image_view)
 
         fun bindBitmap(frameInfo: FrameInfo) {
             with(frameInfo) {
-                info.text = context.getString(R.string.app_frame_info, index, timestamp)
                 view.setImageBitmap(bitmap)
+                view.setOnClickListener {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.app_frame_info, index, timestamp),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
     }

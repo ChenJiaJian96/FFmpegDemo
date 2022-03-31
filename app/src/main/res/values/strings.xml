@@ -11,6 +11,6 @@
     <string name="app_second_capture_strategy">使用策略二：每次seek先判断 GOP，再向后寻找 I 帧，然后向前解码</string>
     <string name="app_first_seek_strategy">使用策略一：AVSEEK_FLAG_BACKWARD</string>
     <string name="app_second_seek_strategy">使用策略二：AVSEEK_FLAG_BYTE</string>
-    <string name="app_frame_info">index: %d\nts: %d ms\n</string>
+    <string name="app_frame_info">index: %d || duration: %d ms</string>
     <string name="app_capture_succeed">视频抽帧完成</string>
 </resources>

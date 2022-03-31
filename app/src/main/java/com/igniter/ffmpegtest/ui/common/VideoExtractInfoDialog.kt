@@ -6,9 +6,9 @@ import android.widget.TextView
 import com.igniter.ffmpeg.R
 
 /**
- * 展示标题和文案的弹窗
+ * 视频抽帧结果导出弹窗
  */
-class CommonContentDialog(context: Context) : Dialog(context) {
+class VideoExtractInfoDialog(context: Context) : Dialog(context, R.style.CommonDialog) {
 
     private var titleView: TextView
     private var contentView: TextView

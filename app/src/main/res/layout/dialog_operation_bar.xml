@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@android:color/darker_gray" />
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="54dp">
+
+        <TextView
+                android:id="@+id/tv_left"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:layout_weight="1"
+                android:textSize="17dp"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                tools:text="取消" />
+
+        <View
+                android:layout_width="0.5dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/darker_gray" />
+
+        <TextView
+                android:id="@+id/tv_right"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:textSize="17dp"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                tools:text="确定" />
+    </LinearLayout>
+
+</merge>

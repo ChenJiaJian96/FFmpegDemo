@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">FFMPEG-YYDS!</string>
+    <string name="app_cancel">取消</string>
+    <string name="app_confirm">确定</string>
 
     <string name="app_video_info">文件名：%s\n分辨率：%d * %d\n视频总时长：%dms</string>
     <string name="app_capture_num">抽帧数量：%d</string>

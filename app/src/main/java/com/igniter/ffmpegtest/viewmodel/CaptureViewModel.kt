@@ -68,31 +68,10 @@ class CaptureViewModel : ViewModel() {
     /**
      * 初始化抽帧策略
      */
-    fun initStrategy(enableMultiThread: Boolean, strategyIndex: Int, seekFlagIndex: Int) {
-        strategy.enableMultiThread = enableMultiThread
-        strategy.strategyIndex = strategyIndex
-        strategy.seekFlagIndex = seekFlagIndex
-    }
-
-    /**
-     * 更新抽帧策略——是否允许多线程抽帧
-     */
-    fun updateEnableMultiThread(enableMultiThread: Boolean) {
-        strategy.enableMultiThread = enableMultiThread
-    }
-
-    /**
-     * 更新抽帧策略——更新抽帧策略选择
-     */
-    fun updateStrategyIndex(strategyIndex: Int) {
-        strategy.strategyIndex = strategyIndex
-    }
-
-    /**
-     * 更新抽帧策略——更新seek策略索引
-     */
-    fun updateSeekFlagIndex(seekFlagIndex: Int) {
-        strategy.strategyIndex = seekFlagIndex
+    fun updateStrategy(captureStrategy: CaptureStrategy) {
+        strategy.enableMultiThread = captureStrategy.enableMultiThread
+        strategy.strategyIndex = captureStrategy.strategyIndex
+        strategy.seekFlagIndex = captureStrategy.seekFlagIndex
     }
 
     /**

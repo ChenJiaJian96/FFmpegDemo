@@ -11,8 +11,8 @@
 
     <ImageView
             android:id="@+id/image_view"
-            android:layout_width="150dp"
-            android:layout_height="110dp"
+            android:layout_width="45dp"
+            android:layout_height="60dp"
             android:background="@color/theme_color" />
 
 </LinearLayout>

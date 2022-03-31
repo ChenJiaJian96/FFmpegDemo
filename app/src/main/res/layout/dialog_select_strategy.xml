@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/common_dialog_bg"
+        android:orientation="vertical">
+
+    <CheckBox
+            android:id="@+id/multi_thread_box"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="是否使用多线程抽帧" />
+
+    <RadioGroup
+            android:id="@+id/strategy_radio_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+        <RadioButton
+                android:id="@+id/first_strategy_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_first_capture_strategy" />
+
+        <RadioButton
+                android:id="@+id/second_strategy_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/app_second_capture_strategy" />
+    </RadioGroup>
+
+    <RadioGroup
+            android:id="@+id/seek_flag_radio_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+        <RadioButton
+                android:id="@+id/first_seek_flag_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/app_first_seek_strategy" />
+
+        <RadioButton
+                android:id="@+id/second_seek_flag_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_second_seek_strategy" />
+    </RadioGroup>
+
+    <include layout="@layout/dialog_operation_bar" />
+
+</LinearLayout>

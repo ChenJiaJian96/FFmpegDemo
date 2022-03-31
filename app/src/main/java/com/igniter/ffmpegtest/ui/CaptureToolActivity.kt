@@ -2,9 +2,7 @@ package com.igniter.ffmpegtest.ui
 
 import android.os.Bundle
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.ProgressBar
-import android.widget.RadioGroup
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,29 +15,22 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.igniter.ffmpeg.R
+import com.igniter.ffmpegtest.ui.chart.MyAxisValueFormatter
+import com.igniter.ffmpegtest.ui.common.SelectStrategyDialog
+import com.igniter.ffmpegtest.ui.common.VideoExtractInfoDialog
+import com.igniter.ffmpegtest.ui.grid.FrameListAdapter
+import com.igniter.ffmpegtest.viewmodel.BarChartViewModel
 import com.igniter.ffmpegtest.viewmodel.CaptureViewModel
 import com.igniter.ffmpegtest.viewmodel.CaptureViewModel.Companion.FRAME_NUM
-import com.igniter.ffmpegtest.viewmodel.BarChartViewModel
-import com.igniter.ffmpegtest.ui.chart.MyAxisValueFormatter
-import com.igniter.ffmpegtest.ui.common.CommonContentDialog
-import com.igniter.ffmpegtest.ui.grid.FrameListAdapter
 
 class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
 
     private lateinit var progressBar: ProgressBar
     private lateinit var frameListView: RecyclerView
-    private lateinit var multiThreadEnabledBox: CheckBox
-    private lateinit var strategyRadioGroup: RadioGroup
-    private lateinit var seekFlagRadioGroup: RadioGroup
     private lateinit var startCaptureBtn: Button // 视频帧列表容器
     private lateinit var barChart: BarChart // 抽帧数据展示容器
 
     private val listAdapter = FrameListAdapter(this, FRAME_NUM)
-
-    private val strategyButtonIdList =
-        arrayListOf(R.id.first_strategy_button, R.id.second_strategy_button)
-    private val seekFlagButtonIdList =
-        arrayListOf(R.id.first_seek_flag_button, R.id.second_seek_flag_button)
 
     private val barChartViewModel: BarChartViewModel by viewModels()
     private val captureViewModel: CaptureViewModel by viewModels()
@@ -49,42 +40,21 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
         setContentView(R.layout.activity_capture_tool)
 
         initStartCaptureBtn()
+        initSelectStrategyBtn()
         initProgressBar()
         initRecyclerView()
         initChart()
         initVideoInfoView()
-        initStrategySelections()
 
         initViewModel()
     }
 
-    private fun initStrategySelections() {
-        multiThreadEnabledBox = findViewById(R.id.multi_thread_box)
-        multiThreadEnabledBox.setOnCheckedChangeListener { _, isChecked ->
-            captureViewModel.updateEnableMultiThread(isChecked)
-        }
-
-        strategyRadioGroup = findViewById(R.id.strategy_radio_group)
-        strategyRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            captureViewModel.updateStrategyIndex(strategyButtonIdList.indexOf(checkedId))
-        }
-
-        seekFlagRadioGroup = findViewById(R.id.seek_flag_radio_group)
-        seekFlagRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            captureViewModel.updateSeekFlagIndex(seekFlagButtonIdList.indexOf(checkedId))
-        }
-    }
-
     private fun initVideoInfoView() {
         captureViewModel.resultData.observe(this) { dataTriple ->
-            CommonContentDialog(this).apply {
+            VideoExtractInfoDialog(this).apply {
                 setTitleText(getString(R.string.app_capture_succeed))
                 setContentText(
-                    """
-                        ${dataTriple.first}
-                        ${dataTriple.second}
-                        ${dataTriple.third}
-                    """.trimIndent()
+                    "${dataTriple.first} | ${dataTriple.second} | ${dataTriple.third}".trimIndent()
                 )
                 show()
             }
@@ -121,22 +91,24 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
     }
 
     private fun initViewModel() {
-        // init video path
         val testVideoPath = intent.getStringExtra(HomeActivity.BUNDLE_KEY_VIDEO_PATH) ?: ""
         captureViewModel.videoPath = testVideoPath
-
-        // init capture strategy
-        captureViewModel.initStrategy(
-            multiThreadEnabledBox.isChecked,
-            strategyButtonIdList.indexOf(strategyRadioGroup.checkedRadioButtonId),
-            seekFlagButtonIdList.indexOf(seekFlagRadioGroup.checkedRadioButtonId)
-        )
     }
 
     private fun initStartCaptureBtn() {
         startCaptureBtn = findViewById(R.id.start_capture)
         startCaptureBtn.setOnClickListener {
             captureViewModel.startCapture(this)
+        }
+    }
+
+    private fun initSelectStrategyBtn() {
+        findViewById<Button>(R.id.select_strategy).setOnClickListener {
+            SelectStrategyDialog(this).also {
+                it.confirmListener = { _, strategy ->
+                    captureViewModel.updateStrategy(strategy)
+                }
+            }.show()
         }
     }
 

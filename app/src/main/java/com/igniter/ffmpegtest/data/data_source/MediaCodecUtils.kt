@@ -1,106 +1,56 @@
-package com.igniter.ffmpegtest
+package com.igniter.ffmpegtest.data.data_source
 
-import android.graphics.Bitmap
 import android.graphics.ImageFormat
-import android.media.*
+import android.media.ImageReader
+import android.media.MediaCodec
 import android.media.MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible
+import android.media.MediaExtractor
+import android.media.MediaFormat
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
-import com.igniter.ffmpegtest.bean.ErrorCode
-import com.igniter.ffmpegtest.bean.FrameResult
-import java.nio.ByteBuffer
-import kotlin.system.measureTimeMillis
+import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
 
-typealias FrameCallback = (FrameResult) -> Unit
+object MediaCodecUtils {
 
-object HardwareUtils {
-
-    private val TAG = HardwareUtils::class.java.simpleName
+    private const val TAG = "MediaCodecUtils"
 
     /**
-     * 使用[MediaMetadataRetriever]进行视频抽帧
-     * 当前接口无法设置导出图片的分辨率
-     */
-    fun captureWithMediaMetaRetriever(filePath: String, callback: FrameCallback) {
-        MediaMetadataRetriever().use { mmr ->
-            try {
-                mmr.setDataSource(filePath)
-            } catch (e: IllegalArgumentException) {
-                Log.e(TAG, "video open failed. filePath = $filePath")
-                callback.invoke(FrameResult.ReadFileFailed(ErrorCode.OPEN_FILE_FAILED))
-                return
-            }
-
-            val durationMs =
-                mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toIntOrNull()
-            Log.d(TAG, "video duration = $durationMs ms")
-
-            if (durationMs == null) {
-                callback.invoke(FrameResult.ReadFileFailed(ErrorCode.EXTRACT_VIDEO_DURATION_FAILED))
-                return
-            }
-
-            for (timeMs in 0 until durationMs step 1000) {
-                val timeCost = measureTimeMillis {
-                    Log.d(TAG, "getFrameAtTime time = $timeMs ms")
-                    val currentUs = timeMs * 1000L
-                    val frameAtIndex: Bitmap? = mmr.getFrameAtTime(currentUs)
-
-                    if (frameAtIndex == null) {
-                        callback.invoke(FrameResult.GetFrameFailed(currentUs))
-                        return@measureTimeMillis
-                    }
-                    val frame = Bitmap.createScaledBitmap(
-                        frameAtIndex,
-                        frameAtIndex.width / 8,
-                        frameAtIndex.height / 8,
-                        false
-                    )
-                    frameAtIndex.recycle()
-                    callback.invoke(FrameResult.Success(frame, currentUs))
-                }
-                Log.d(TAG, "cost time in millis = $timeCost")
-            }
-        }
-    }
-
-    /**
-     * 通过[MediaCodec]和[ImageReader]进行抽帧
-     * 可通过[scale]控制导出质量
+     * capture frames with [MediaCodec] && [ImageReader]
+     * @param scale control the resolution of video
      *
      * @link https://www.jianshu.com/p/dfddb85302bd
      */
-//    @RequiresApi(Build.VERSION_CODES.Q)
-//    fun captureWithMediaExtractor(filePath: String, scale: Int, callback: FrameCallback) {
-//        // prepare file info
-//        val extractor = MediaExtractor().also {
-//            it.setDataSource(filePath)
-//        }
-//        // prepare video track info
-//        val (index, videoFormat) = getVideoTrackInfo(extractor)
-//        if (videoFormat == null) {
+    @RequiresApi(Build.VERSION_CODES.Q)
+    fun captureFrames(videoPath: String, totalNum: Int, callback: CaptureFrameListener, scale: Int) {
+        // prepare file info
+        val extractor = MediaExtractor().also {
+            it.setDataSource(videoPath)
+        }
+        // prepare video track info
+        val (index, videoFormat) = getVideoTrackInfo(extractor)
+        if (videoFormat == null) {
 //            callback.invoke(FrameResult.ReadFileFailed(ErrorCode.VIDEO_TRACK_NOT_FOUND))
-//            return
-//        }
-//        extractor.selectTrack(index)
-//        //
-//        val colorFormat = COLOR_FormatYUV420Flexible
-//        videoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat)
-//        val srcWidth = videoFormat.getInteger(MediaFormat.KEY_WIDTH)
-//        val srcHeight = videoFormat.getInteger(MediaFormat.KEY_HEIGHT)
-//        val dstWidth = srcWidth / scale
-//        val dstHeight = srcHeight / scale
-//        videoFormat.setInteger(MediaFormat.KEY_WIDTH, dstWidth)
-//        videoFormat.setInteger(MediaFormat.KEY_HEIGHT, dstHeight)
-//        val duration = videoFormat.getLong(MediaFormat.KEY_DURATION)
-//        val codec = MediaCodec.createDecoderByType(videoFormat.getString(MediaFormat.KEY_MIME, ""))
-//        val imageReader = ImageReader.newInstance(
-//            srcWidth,
-//            srcHeight,
-//            ImageFormat.YUV_420_888,
-//            3
-//        )
+            return
+        }
+        extractor.selectTrack(index)
+        //
+        val colorFormat = COLOR_FormatYUV420Flexible
+        videoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat)
+        val srcWidth = videoFormat.getInteger(MediaFormat.KEY_WIDTH)
+        val srcHeight = videoFormat.getInteger(MediaFormat.KEY_HEIGHT)
+        val dstWidth = srcWidth / scale
+        val dstHeight = srcHeight / scale
+        videoFormat.setInteger(MediaFormat.KEY_WIDTH, dstWidth)
+        videoFormat.setInteger(MediaFormat.KEY_HEIGHT, dstHeight)
+        val duration = videoFormat.getLong(MediaFormat.KEY_DURATION)
+        val codec = MediaCodec.createDecoderByType(videoFormat.getString(MediaFormat.KEY_MIME, ""))
+        val imageReader = ImageReader.newInstance(
+            srcWidth,
+            srcHeight,
+            ImageFormat.YUV_420_888,
+            3
+        )
+        // TODO(jiajianchen) implement it
 //        val readerHandlerThread = ImageReaderHandlerThread()
 //        imageReader.setOnImageAvailableListener(
 //            CaptureImageAvailableListener(callback,scale),
@@ -200,7 +150,7 @@ object HardwareUtils {
 //                }
 //            }
 //        }
-//    }
+    }
 
     /**
      * 获取视频轨道信息

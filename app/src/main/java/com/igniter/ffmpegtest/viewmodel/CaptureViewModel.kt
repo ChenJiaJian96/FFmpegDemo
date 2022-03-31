@@ -7,13 +7,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.igniter.ffmpeg.R
-import com.igniter.ffmpegtest.VideoManager
-import com.igniter.ffmpegtest.VideoManager.OnCaptureDataCallbackListener.Companion.STEP_OUTPUT
-import com.igniter.ffmpegtest.VideoManager.OnCaptureDataCallbackListener.Companion.STEP_RETRIEVE
-import com.igniter.ffmpegtest.VideoManager.OnCaptureDataCallbackListener.Companion.STEP_SEEK_AND_DECODE
-import com.igniter.ffmpegtest.bean.CaptureDuration
-import com.igniter.ffmpegtest.bean.CaptureStrategy
-import com.igniter.ffmpegtest.bean.FrameInfo
+import com.igniter.ffmpegtest.data.repository.MMRRepoImpl
+import com.igniter.ffmpegtest.domain.bean.CaptureDuration
+import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
+import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_OUTPUT
+import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_RETRIEVE
+import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_SEEK_AND_DECODE
+import com.igniter.ffmpegtest.domain.bean.FrameInfo
+import com.igniter.ffmpegtest.domain.repository.CaptureRepository
 import kotlin.concurrent.thread
 
 /**
@@ -55,23 +56,10 @@ class CaptureViewModel : ViewModel() {
      */
     val frameInfoList: Array<FrameInfo?> = arrayOfNulls(FRAME_NUM)
 
-    /**
-     * 抽帧策略选择封装
-     */
-    private val strategy = CaptureStrategy()
+    private var captureFrameRepo: CaptureRepository = MMRRepoImpl()
 
-    /**
-     * 抽帧逻辑实现管理类
-     */
-    private val videoManager = VideoManager()
-
-    /**
-     * 初始化抽帧策略
-     */
-    fun updateStrategy(captureStrategy: CaptureStrategy) {
-        strategy.enableMultiThread = captureStrategy.enableMultiThread
-        strategy.strategyIndex = captureStrategy.strategyIndex
-        strategy.seekFlagIndex = captureStrategy.seekFlagIndex
+    fun switchCaptureRepository(repo: CaptureRepository) {
+        this.captureFrameRepo = repo
     }
 
     /**
@@ -89,13 +77,10 @@ class CaptureViewModel : ViewModel() {
 
         thread {
             var lastCaptureDuration = CaptureDuration()
-            videoManager.capture(
+            captureFrameRepo.captureFrames(
                 videoPath = videoPath,
                 totalNum = captureNum,
-                enableMultiThread = strategy.enableMultiThread,
-                strategyIndex = strategy.strategyIndex,
-                seekFlagIndex = strategy.seekFlagIndex,
-                onBitmapCallbackListener = object : VideoManager.OnCaptureDataCallbackListener {
+                callback = object : CaptureFrameListener {
                     override fun onVideoInfoRetrieved(width: Int, height: Int, durationMs: Long) {
                         videoInfo = context.getString(
                             R.string.app_video_info,
@@ -106,16 +91,16 @@ class CaptureViewModel : ViewModel() {
                         )
                     }
 
-                    override fun onBitmapCaptured(index: Int, timestamp: Long, bitmap: Bitmap, isFinished: Boolean) {
+                    override fun onBitmapCaptured(index: Int, timestampMs: Long, bitmap: Bitmap) {
                         onBitmapUpdated(
                             FrameInfo(
                                 index = index,
-                                timestamp = timestamp,
+                                timestamp = timestampMs,
                                 bitmap = bitmap
                             )
                         )
 
-                        if (isFinished) {
+                        if (!frameInfoList.contains(null)) {
                             val captureInfo = context.getString(R.string.app_capture_num, captureNum)
                             val totalDuration = context.getString(
                                 R.string.app_capture_duration,

@@ -1,4 +1,4 @@
-package com.igniter.ffmpegtest.bean
+package com.igniter.ffmpegtest.domain.bean
 
 /**
  * 抽帧策略选择封装类

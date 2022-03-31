@@ -1,4 +1,4 @@
-package com.igniter.ffmpegtest.ui.grid
+package com.igniter.ffmpegtest.ui
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.igniter.ffmpeg.R
-import com.igniter.ffmpegtest.bean.FrameInfo
+import com.igniter.ffmpegtest.domain.bean.FrameInfo
 
 class FrameListAdapter(private val context: Context, private val num: Int) :
     RecyclerView.Adapter<FrameListAdapter.ViewHolder>() {

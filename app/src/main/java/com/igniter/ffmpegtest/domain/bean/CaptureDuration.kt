@@ -1,4 +1,4 @@
-package com.igniter.ffmpegtest.bean
+package com.igniter.ffmpegtest.domain.bean
 
 /**
  * 记录逐帧耗时结构体

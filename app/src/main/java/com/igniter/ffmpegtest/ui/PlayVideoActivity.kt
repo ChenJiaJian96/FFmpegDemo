@@ -6,15 +6,14 @@ import android.view.SurfaceView
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.igniter.ffmpeg.R
-import com.igniter.ffmpegtest.VideoManager
+import com.igniter.ffmpegtest.data.data_source.HardwareSolution
+import com.igniter.ffmpegtest.data.repository.HardwareRepoImpl
 
 class PlayVideoActivity : AppCompatActivity() {
 
     private lateinit var surfaceView: SurfaceView
     private lateinit var surfaceHolder: SurfaceHolder
     private lateinit var playVideoView: Button
-
-    private val player = VideoManager()
 
     private var testVideoPath: String = ""
 
@@ -28,7 +27,7 @@ class PlayVideoActivity : AppCompatActivity() {
         surfaceHolder = surfaceView.holder
         playVideoView = findViewById(R.id.btn_play_video)
         playVideoView.setOnClickListener {
-            player.playVideo(testVideoPath, surfaceHolder.surface)
+            HardwareSolution.playVideo(testVideoPath, surfaceHolder.surface)
         }
     }
 }

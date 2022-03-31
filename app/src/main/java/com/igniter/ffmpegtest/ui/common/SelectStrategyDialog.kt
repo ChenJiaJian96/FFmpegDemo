@@ -8,7 +8,7 @@ import android.widget.CheckBox
 import android.widget.RadioGroup
 import android.widget.TextView
 import com.igniter.ffmpeg.R
-import com.igniter.ffmpegtest.bean.CaptureStrategy
+import com.igniter.ffmpegtest.domain.bean.CaptureStrategy
 
 typealias CaptureStrategyCallbackListener = (View, CaptureStrategy) -> Unit
 

@@ -15,10 +15,10 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.igniter.ffmpeg.R
+import com.igniter.ffmpegtest.data.repository.HardwareRepoImpl
 import com.igniter.ffmpegtest.ui.chart.MyAxisValueFormatter
 import com.igniter.ffmpegtest.ui.common.SelectStrategyDialog
 import com.igniter.ffmpegtest.ui.common.VideoExtractInfoDialog
-import com.igniter.ffmpegtest.ui.grid.FrameListAdapter
 import com.igniter.ffmpegtest.viewmodel.BarChartViewModel
 import com.igniter.ffmpegtest.viewmodel.CaptureViewModel
 import com.igniter.ffmpegtest.viewmodel.CaptureViewModel.Companion.FRAME_NUM
@@ -104,9 +104,11 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
 
     private fun initSelectStrategyBtn() {
         findViewById<Button>(R.id.select_strategy).setOnClickListener {
-            SelectStrategyDialog(this).also {
-                it.confirmListener = { _, strategy ->
-                    captureViewModel.updateStrategy(strategy)
+            SelectStrategyDialog(this).also { dialog ->
+                dialog.confirmListener = { _, strategy ->
+                    captureViewModel.switchCaptureRepository(HardwareRepoImpl().also { repo ->
+                        repo.updateCaptureStrategy(strategy)
+                    })
                 }
             }.show()
         }
@@ -148,7 +150,6 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
             barChart.notifyDataSetChanged()
         }
     }
-
 
     override fun onValueSelected(e: Entry?, h: Highlight?) {}
 

@@ -2,7 +2,7 @@ package com.igniter.ffmpegtest.data.repository
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.igniter.ffmpegtest.data.data_source.MediaCodecSolution
+import com.igniter.ffmpegtest.data.data_source.mediacodec.MediaCodecSolution
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
 import com.igniter.ffmpegtest.domain.repository.CaptureRepository
 

@@ -6,7 +6,12 @@ import android.os.Build
 import android.util.Log
 import android.util.Size
 import com.igniter.ffmpegtest.data.utils.VideoUtils
+import com.igniter.ffmpegtest.data.utils.VideoUtils.msToUs
+import com.igniter.ffmpegtest.data.utils.VideoUtils.sToMs
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
+import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_FAILED
+import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_OUTPUT
+import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_RETRIEVE
 
 object MMRSolution {
 
@@ -24,16 +29,17 @@ object MMRSolution {
      * @Note: current function can only customize video resolution up to [Build.VERSION_CODES.O_MR1]
      */
     fun captureFrames(
-        filePath: String,
+        videoPath: String,
         totalNum: Int,
         callback: CaptureFrameListener,
         scale: Int
     ) {
         MediaMetadataRetriever().use { mmr ->
             try {
-                mmr.setDataSource(filePath)
+                mmr.setDataSource(videoPath)
             } catch (e: IllegalArgumentException) {
-                Log.e(TAG, "[captureFrames] | video open failed. filePath = $filePath")
+                Log.e(TAG, "[captureFrames] | video open failed. filePath = $videoPath")
+                callback.onStepPassed(-1, STEP_FAILED)
                 return
             }
 
@@ -41,6 +47,7 @@ object MMRSolution {
             val rawHeight = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 0
             val durationMs = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
             callback.onVideoInfoRetrieved(rawWidth, rawHeight, durationMs)
+            callback.onStepPassed(0, STEP_RETRIEVE)
 
             val outputSize = VideoUtils.getExpectedSize(
                 target = Size(rawWidth / scale, rawHeight / scale),
@@ -49,12 +56,15 @@ object MMRSolution {
             Log.d(TAG, "[captureFrames] | outputSize : width = ${outputSize.width}, height: ${outputSize.height}")
 
             for (index in 0 until totalNum) {
-                val positionMs = index * 1000L
+                val positionMs = sToMs(index.toLong())
 
                 doExtractor(mmr, outputSize, positionMs)?.run {
                     callback.onBitmapCaptured(index, positionMs, this)
+                    callback.onStepPassed(index + 1, STEP_OUTPUT)
                 }
             }
+
+
         }
     }
 
@@ -63,14 +73,14 @@ object MMRSolution {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
                 Log.e(TAG, "[doExtractor] | getScaledFrameAtTime time = $positionMs ms")
                 mmr.getScaledFrameAtTime(
-                    positionMs * 1000,
+                    msToUs(positionMs),
                     CAPTURE_OPTION,
                     videoSize.width,
                     videoSize.height
                 )
             } else {
                 Log.e(TAG, "[doExtractor] | getFrameAtTime time = $positionMs ms")
-                mmr.getFrameAtTime(positionMs * 1000, CAPTURE_OPTION)
+                mmr.getFrameAtTime(msToUs(positionMs), CAPTURE_OPTION)
             }
         } catch (e: IllegalArgumentException) {
             null

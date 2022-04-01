@@ -3,6 +3,7 @@ package com.igniter.ffmpegtest.viewmodel
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,6 +11,7 @@ import com.igniter.ffmpeg.R
 import com.igniter.ffmpegtest.data.repository.MMRRepoImpl
 import com.igniter.ffmpegtest.domain.bean.CaptureDuration
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
+import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_FAILED
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_OUTPUT
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_RETRIEVE
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_SEEK_AND_DECODE
@@ -117,19 +119,21 @@ class CaptureViewModel : ViewModel() {
                         val curStepDurationMs = currentFrameTimeMs - lastFrameTimeMs
                         Log.d(TAG, "onStepPassed: index: $index, step: $step, curStepDuration: $curStepDurationMs")
                         when (step) {
+                            STEP_FAILED -> {
+                                Toast.makeText(context, "抽帧失败了，请通过日志查看原因", Toast.LENGTH_LONG).show()
+                            }
                             STEP_RETRIEVE -> {
                                 lastCaptureDuration = CaptureDuration()
                                 lastCaptureDuration.index = index
                                 lastCaptureDuration.retrieveMs = curStepDurationMs
                                 _latestDurationData.postValue(lastCaptureDuration)
                             }
-
                             STEP_SEEK_AND_DECODE -> {
                                 lastCaptureDuration = CaptureDuration()
-                                lastCaptureDuration.index = index
                                 lastCaptureDuration.seekAndDecodeMs = curStepDurationMs
                             }
                             STEP_OUTPUT -> {
+                                lastCaptureDuration.index = index
                                 lastCaptureDuration.outputMs = curStepDurationMs
                                 _latestDurationData.postValue(lastCaptureDuration)
                             }

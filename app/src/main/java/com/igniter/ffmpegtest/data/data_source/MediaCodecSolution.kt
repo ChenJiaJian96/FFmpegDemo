@@ -10,7 +10,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
 
-object MediaCodecUtils {
+object MediaCodecSolution {
 
     private const val TAG = "MediaCodecUtils"
 

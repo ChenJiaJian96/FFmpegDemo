@@ -3,7 +3,7 @@ package com.igniter.ffmpegtest.data.data_source
 import android.view.Surface
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
 
-object HardwareSolution {
+object FFmpegSolution {
 
     /**
      * play video in given surface

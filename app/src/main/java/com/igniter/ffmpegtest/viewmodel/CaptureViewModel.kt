@@ -8,14 +8,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.igniter.ffmpeg.R
+import com.igniter.ffmpegtest.data.repository.FFmpegRepoImpl
 import com.igniter.ffmpegtest.data.repository.MMRRepoImpl
+import com.igniter.ffmpegtest.data.repository.MediaCodecRepoImpl
 import com.igniter.ffmpegtest.domain.bean.CaptureDuration
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_FAILED
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_OUTPUT
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_RETRIEVE
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_SEEK_AND_DECODE
+import com.igniter.ffmpegtest.domain.bean.CaptureStrategy
 import com.igniter.ffmpegtest.domain.bean.FrameInfo
+import com.igniter.ffmpegtest.domain.bean.RepoType
 import com.igniter.ffmpegtest.domain.repository.CaptureRepository
 import kotlin.concurrent.thread
 
@@ -58,10 +62,18 @@ class CaptureViewModel : ViewModel() {
      */
     val frameInfoList: Array<FrameInfo?> = arrayOfNulls(FRAME_NUM)
 
-    private var captureFrameRepo: CaptureRepository = MMRRepoImpl()
+    private var captureFrameRepo: CaptureRepository = FFmpegRepoImpl()
 
-    fun switchCaptureRepository(repo: CaptureRepository) {
-        this.captureFrameRepo = repo
+    fun switchCaptureRepository(repoType: RepoType) {
+        captureFrameRepo = when (repoType) {
+            RepoType.FFmpeg -> FFmpegRepoImpl()
+            RepoType.MMR -> MMRRepoImpl()
+            RepoType.MediaCodec -> MediaCodecRepoImpl()
+        }
+    }
+
+    fun updateFFmpegStrategy(captureStrategy: CaptureStrategy) {
+        (captureFrameRepo as? FFmpegRepoImpl)?.updateCaptureStrategy(captureStrategy)
     }
 
     /**

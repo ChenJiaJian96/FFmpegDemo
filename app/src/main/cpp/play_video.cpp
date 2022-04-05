@@ -7,10 +7,10 @@
  */
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_igniter_ffmpegtest_data_data_1source_HardwareSolution_playVideo(JNIEnv *env,
-                                                                         jobject thiz,
-                                                                         jstring path_,
-                                                                         jobject surface) {
+Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_playVideo(JNIEnv *env,
+                                                                       jobject thiz,
+                                                                       jstring path_,
+                                                                       jobject surface) {
   // 记录结果
   int result;
   // R1 Java String -> C String

@@ -6,8 +6,7 @@ import android.view.SurfaceView
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.igniter.ffmpeg.R
-import com.igniter.ffmpegtest.data.data_source.HardwareSolution
-import com.igniter.ffmpegtest.data.repository.HardwareRepoImpl
+import com.igniter.ffmpegtest.data.data_source.FFmpegSolution
 
 class PlayVideoActivity : AppCompatActivity() {
 
@@ -27,7 +26,7 @@ class PlayVideoActivity : AppCompatActivity() {
         surfaceHolder = surfaceView.holder
         playVideoView = findViewById(R.id.btn_play_video)
         playVideoView.setOnClickListener {
-            HardwareSolution.playVideo(testVideoPath, surfaceHolder.surface)
+            FFmpegSolution.playVideo(testVideoPath, surfaceHolder.surface)
         }
     }
 }

@@ -178,14 +178,14 @@ void seek_to_target_pos(AVFormatContext *format_context,
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_igniter_ffmpegtest_data_data_1source_HardwareSolution_capture(JNIEnv *env,
-                                                                       jobject thiz,
-                                                                       jstring video_path,
-                                                                       jint total_num,
-                                                                       jboolean enable_multi_thread,
-                                                                       jint strategy_index,
-                                                                       jint seek_flag_index,
-                                                                       jobject capture_frame_listener) {
+Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env,
+                                                                     jobject thiz,
+                                                                     jstring video_path,
+                                                                     jint total_num,
+                                                                     jboolean enable_multi_thread,
+                                                                     jint strategy_index,
+                                                                     jint seek_flag_index,
+                                                                     jobject capture_frame_listener) {
   int result; // 记录校验结果
   const char *path = env->GetStringUTFChars(video_path, nullptr); // 视频路径
 

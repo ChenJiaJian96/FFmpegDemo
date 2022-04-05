@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/common_dialog_bg"
+        android:orientation="vertical">
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:textSize="17dp"
+            android:textStyle="bold"
+            android:text="请选择抽帧的方式" />
+
+    <RadioGroup
+            android:id="@+id/repo_radio_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_gravity="center_horizontal">
+
+        <RadioButton
+                android:id="@+id/rb_mmr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MediaMetaDataRetriever" />
+
+        <RadioButton
+                android:id="@+id/rb_mediacodec"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MediaCodec" />
+
+        <RadioButton
+                android:id="@+id/rb_ffmpeg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="FFmpeg" />
+    </RadioGroup>
+
+    <include layout="@layout/dialog_operation_bar" />
+
+</LinearLayout>

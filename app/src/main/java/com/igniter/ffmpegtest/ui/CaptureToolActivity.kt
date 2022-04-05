@@ -15,8 +15,8 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.igniter.ffmpeg.R
-import com.igniter.ffmpegtest.data.repository.HardwareRepoImpl
 import com.igniter.ffmpegtest.ui.chart.MyAxisValueFormatter
+import com.igniter.ffmpegtest.ui.common.SelectRepoDialog
 import com.igniter.ffmpegtest.ui.common.SelectStrategyDialog
 import com.igniter.ffmpegtest.ui.common.VideoExtractInfoDialog
 import com.igniter.ffmpegtest.viewmodel.BarChartViewModel
@@ -28,6 +28,7 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
     private lateinit var progressBar: ProgressBar
     private lateinit var frameListView: RecyclerView
     private lateinit var startCaptureBtn: Button // 视频帧列表容器
+    private lateinit var selectRepoBtn: Button
     private lateinit var barChart: BarChart // 抽帧数据展示容器
 
     private val listAdapter = FrameListAdapter(this, FRAME_NUM)
@@ -40,6 +41,7 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
         setContentView(R.layout.activity_capture_tool)
 
         initStartCaptureBtn()
+        initSelectRepoBtn()
         initSelectStrategyBtn()
         initProgressBar()
         initRecyclerView()
@@ -102,13 +104,22 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
         }
     }
 
+    private fun initSelectRepoBtn() {
+        selectRepoBtn = findViewById(R.id.select_repo)
+        selectRepoBtn.setOnClickListener {
+            SelectRepoDialog(this).also { dialog ->
+                dialog.confirmListener = { _, repoType ->
+                    captureViewModel.switchCaptureRepository(repoType = repoType)
+                }
+            }.show()
+        }
+    }
+
     private fun initSelectStrategyBtn() {
         findViewById<Button>(R.id.select_strategy).setOnClickListener {
             SelectStrategyDialog(this).also { dialog ->
                 dialog.confirmListener = { _, strategy ->
-                    captureViewModel.switchCaptureRepository(HardwareRepoImpl().also { repo ->
-                        repo.updateCaptureStrategy(strategy)
-                    })
+                    captureViewModel.updateFFmpegStrategy(strategy)
                 }
             }.show()
         }

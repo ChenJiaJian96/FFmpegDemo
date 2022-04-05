@@ -24,7 +24,7 @@ import com.igniter.ffmpegtest.domain.repository.CaptureRepository
 import kotlin.concurrent.thread
 
 /**
- * 抽帧逻辑 View
+ * 抽帧逻辑 ViewModel
  * 负责执行抽帧、帧信息管理和回调等职责
  */
 class CaptureViewModel : ViewModel() {

@@ -8,7 +8,13 @@ class MMRRepoImpl : CaptureRepository {
 
     private var scale: Int = 1
 
-    override fun captureFrames(videoPath: String, totalNum: Int, callback: CaptureFrameListener) {
+    override fun captureFrames(
+        videoPath: String,
+        totalNum: Int,
+        callback: CaptureFrameListener,
+        startPos: Int,
+        startTimeInMs: Long
+    ) {
         MMRSolution.captureFrames(videoPath, totalNum, callback, scale)
     }
 

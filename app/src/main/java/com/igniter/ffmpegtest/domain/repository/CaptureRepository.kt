@@ -14,6 +14,9 @@ interface CaptureRepository {
     fun captureFrames(
         videoPath: String,
         totalNum: Int,
-        callback: CaptureFrameListener)
+        callback: CaptureFrameListener,
+        startPos: Int,
+        startTimeInMs: Long
+    )
 
 }

@@ -27,3 +27,5 @@ fun Long.sToMs(): Long = this * TIME_UNIT
 fun Long.msToUs() = this * TIME_UNIT
 
 fun Long.usToMs(): Long = this / TIME_UNIT
+
+fun Long.MsToS(): Long = this / TIME_UNIT

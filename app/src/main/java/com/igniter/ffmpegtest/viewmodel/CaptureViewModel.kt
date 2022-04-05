@@ -88,72 +88,78 @@ class CaptureViewModel : ViewModel() {
     private fun captureFrames(context: Context, videoPath: String, captureNum: Int = FRAME_NUM) {
         val startTimeMs = System.currentTimeMillis()
         var lastFrameTimeMs = startTimeMs
-
-        thread {
-            var lastCaptureDuration = CaptureDuration()
-            captureFrameRepo.captureFrames(
-                videoPath = videoPath,
-                totalNum = captureNum,
-                callback = object : CaptureFrameListener {
-                    override fun onVideoInfoRetrieved(width: Int, height: Int, durationMs: Long) {
-                        videoInfo = context.getString(
-                            R.string.app_video_info,
-                            videoPath,
-                            width,
-                            height,
-                            durationMs
-                        )
-                    }
-
-                    override fun onBitmapCaptured(index: Int, timestampMs: Long, bitmap: Bitmap) {
-                        onBitmapUpdated(
-                            FrameInfo(
-                                index = index,
-                                timestamp = timestampMs,
-                                bitmap = bitmap
-                            )
-                        )
-
-                        if (!frameInfoList.contains(null)) {
-                            val captureInfo = context.getString(R.string.app_capture_num, captureNum)
-                            val totalDuration = context.getString(
-                                R.string.app_capture_duration,
-                                System.currentTimeMillis() - startTimeMs
-                            )
-                            _resultData.postValue(
-                                Triple(captureInfo, videoInfo, totalDuration)
+        val threadCount = 4
+        val perThreadExecuteNum = captureNum / threadCount
+        repeat(threadCount) { time ->
+            thread {
+                var lastCaptureDuration = CaptureDuration()
+                captureFrameRepo.captureFrames(
+                    videoPath = videoPath,
+                    totalNum = perThreadExecuteNum,
+                    startPos = perThreadExecuteNum * time,
+                    startTimeInMs = perThreadExecuteNum * 1000.toLong(),
+                    callback = object : CaptureFrameListener {
+                        override fun onVideoInfoRetrieved(width: Int, height: Int, durationMs: Long) {
+                            videoInfo = context.getString(
+                                R.string.app_video_info,
+                                videoPath,
+                                width,
+                                height,
+                                durationMs
                             )
                         }
-                    }
 
-                    override fun onStepPassed(index: Int, step: Int) {
-                        val currentFrameTimeMs = System.currentTimeMillis()
-                        val curStepDurationMs = currentFrameTimeMs - lastFrameTimeMs
-                        Log.d(TAG, "onStepPassed: index: $index, step: $step, curStepDuration: $curStepDurationMs")
-                        when (step) {
-                            STEP_FAILED -> {
-                                Toast.makeText(context, "抽帧失败了，请通过日志查看原因", Toast.LENGTH_LONG).show()
-                            }
-                            STEP_RETRIEVE -> {
-                                lastCaptureDuration = CaptureDuration()
-                                lastCaptureDuration.index = index
-                                lastCaptureDuration.retrieveMs = curStepDurationMs
-                                _latestDurationData.postValue(lastCaptureDuration)
-                            }
-                            STEP_SEEK_AND_DECODE -> {
-                                lastCaptureDuration = CaptureDuration()
-                                lastCaptureDuration.seekAndDecodeMs = curStepDurationMs
-                            }
-                            STEP_OUTPUT -> {
-                                lastCaptureDuration.index = index
-                                lastCaptureDuration.outputMs = curStepDurationMs
-                                _latestDurationData.postValue(lastCaptureDuration)
+                        override fun onBitmapCaptured(index: Int, timestampMs: Long, bitmap: Bitmap) {
+                            onBitmapUpdated(
+                                FrameInfo(
+                                    index = index,
+                                    timestamp = timestampMs,
+                                    bitmap = bitmap
+                                )
+                            )
+
+                            if (!frameInfoList.contains(null)) {
+                                val captureInfo = context.getString(R.string.app_capture_num, captureNum)
+                                val totalDuration = context.getString(
+                                    R.string.app_capture_duration,
+                                    System.currentTimeMillis() - startTimeMs
+                                )
+                                _resultData.postValue(
+                                    Triple(captureInfo, videoInfo, totalDuration)
+                                )
                             }
                         }
 
-                        lastFrameTimeMs = currentFrameTimeMs
+                        override fun onStepPassed(index: Int, step: Int) {
+                            val currentFrameTimeMs = System.currentTimeMillis()
+                            val curStepDurationMs = currentFrameTimeMs - lastFrameTimeMs
+                            Log.d(TAG, "onStepPassed: index: $index, step: $step, curStepDuration: $curStepDurationMs")
+                            when (step) {
+                                STEP_FAILED -> {
+                                    Toast.makeText(context, "抽帧失败了，请通过日志查看原因", Toast.LENGTH_LONG).show()
+                                }
+                                STEP_RETRIEVE -> {
+                                    lastCaptureDuration = CaptureDuration()
+                                    lastCaptureDuration.index = index
+                                    lastCaptureDuration.retrieveMs = curStepDurationMs
+                                    _latestDurationData.postValue(lastCaptureDuration)
+                                }
+                                STEP_SEEK_AND_DECODE -> {
+                                    lastCaptureDuration = CaptureDuration()
+                                    lastCaptureDuration.seekAndDecodeMs = curStepDurationMs
+                                }
+                                STEP_OUTPUT -> {
+                                    lastCaptureDuration.index = index
+                                    lastCaptureDuration.outputMs = curStepDurationMs
+                                    _latestDurationData.postValue(lastCaptureDuration)
+                                }
+                            }
+
+                            lastFrameTimeMs = currentFrameTimeMs
+                        }
                     }
-                })
+                )
+            }
         }
     }
 

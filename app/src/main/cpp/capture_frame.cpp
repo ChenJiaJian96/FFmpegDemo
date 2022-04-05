@@ -181,6 +181,8 @@ JNIEXPORT void JNICALL
 Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env,
                                                                      jobject thiz,
                                                                      jstring video_path,
+                                                                     jint start_time_in_s,
+                                                                     jint start_index,
                                                                      jint total_num,
                                                                      jboolean enable_multi_thread,
                                                                      jint strategy_index,
@@ -273,25 +275,22 @@ Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env
       nullptr);
   // endregion
 
-  //  uint64_t interval_us = 1 * AV_TIME_BASE; // TODO: 逻辑A 间隔固定 1s
-  uint64_t interval_us = video_duration / total_num; // TODO: 逻辑B 间隔平均分配
+  uint64_t interval_us = 1 * AV_TIME_BASE; // TODO: 逻辑A 间隔固定 1s
+//  uint64_t interval_us = video_duration / total_num; // TODO: 逻辑B 间隔平均分配
   LOGD("video capture interval %ld", interval_us)
 
   AVPacket packet;
   int time_base_den =
       format_context->streams[video_stream_index]->time_base.den;
   int seek_flag = get_seek_flag(seek_flag_index);
-  invoke_step_passed(env, capture_frame_listener,
-                     0, 0);
-  for (
-      int index = 0;
-      index < total_num;
-      ++index) {
+  invoke_step_passed(env, capture_frame_listener, 0, 0);
 
-    int64_t seek_pos_us = interval_us * index;
+  for (int index = 0; index < total_num; ++index) {
+    int64_t seek_pos_us = start_time_in_s * AV_TIME_BASE + interval_us * index;
     int64_t last_seek_pos_us = 0;
     if (index > 0) {
-      last_seek_pos_us = interval_us * (index - 1);
+      last_seek_pos_us =
+          start_time_in_s * AV_TIME_BASE + interval_us * (index - 1);
     }
 
     seek_to_target_pos(format_context,
@@ -304,9 +303,7 @@ Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env
 
     // region 使用 packet 开始读取视频
     // packet -> frame
-    while (
-        av_read_frame(format_context, &packet
-        ) >= 0) {
+    while (av_read_frame(format_context, &packet) >= 0) {
       // 匹配视频流
       if (packet.stream_index != video_stream_index) {
         av_packet_unref(&packet);
@@ -338,8 +335,7 @@ Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env
     }
     // endregion
     // decode finished
-    invoke_step_passed(env, capture_frame_listener, index
-        + 1, 1);
+    invoke_step_passed(env, capture_frame_listener, start_index + index + 1, 1);
 
     LOGD("开始转换视频帧数据到图像帧数据")
     sws_scale(sws_context,

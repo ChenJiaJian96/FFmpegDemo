@@ -6,8 +6,8 @@ import android.os.Build
 import android.util.Log
 import android.util.Size
 import com.igniter.ffmpegtest.data.utils.VideoUtils
-import com.igniter.ffmpegtest.data.utils.VideoUtils.msToUs
-import com.igniter.ffmpegtest.data.utils.VideoUtils.sToMs
+import com.igniter.ffmpegtest.data.utils.msToUs
+import com.igniter.ffmpegtest.data.utils.sToMs
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_FAILED
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_OUTPUT
@@ -56,7 +56,7 @@ object MMRSolution {
             Log.d(TAG, "[captureFrames] | outputSize : width = ${outputSize.width}, height: ${outputSize.height}")
 
             for (index in 0 until totalNum) {
-                val positionMs = sToMs(index.toLong())
+                val positionMs = index.toLong().sToMs()
 
                 doExtractor(mmr, outputSize, positionMs)?.run {
                     callback.onBitmapCaptured(index, positionMs, this)
@@ -73,14 +73,14 @@ object MMRSolution {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
                 Log.e(TAG, "[doExtractor] | getScaledFrameAtTime time = $positionMs ms")
                 mmr.getScaledFrameAtTime(
-                    msToUs(positionMs),
+                    positionMs.msToUs(),
                     CAPTURE_OPTION,
                     videoSize.width,
                     videoSize.height
                 )
             } else {
                 Log.e(TAG, "[doExtractor] | getFrameAtTime time = $positionMs ms")
-                mmr.getFrameAtTime(msToUs(positionMs), CAPTURE_OPTION)
+                mmr.getFrameAtTime(positionMs.msToUs(), CAPTURE_OPTION)
             }
         } catch (e: IllegalArgumentException) {
             null

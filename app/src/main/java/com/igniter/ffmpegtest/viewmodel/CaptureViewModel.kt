@@ -2,6 +2,7 @@ package com.igniter.ffmpegtest.viewmodel
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -66,6 +67,7 @@ class CaptureViewModel : ViewModel() {
     private var startTimeMs: Long = 0L
 
     fun switchCaptureRepository(repoType: RepoType) {
+        Log.d(TAG, "switchCaptureRepository: switchRepo: ${repoType.javaClass.name}")
         captureFrameRepo = when (repoType) {
             RepoType.FFmpeg -> FFmpegRepoImpl()
             RepoType.MMR -> MMRRepoImpl()
@@ -73,8 +75,9 @@ class CaptureViewModel : ViewModel() {
         }
     }
 
-    fun updateFFmpegStrategy(captureStrategy: FFmpegStrategy) {
-        (captureFrameRepo as? FFmpegRepoImpl)?.updateCaptureStrategy(captureStrategy)
+    fun updateFFmpegStrategy(ffmpegStrategy: FFmpegStrategy) {
+        Log.d(TAG, "updateFFmpegStrategy.")
+        (captureFrameRepo as? FFmpegRepoImpl)?.updateStrategy(ffmpegStrategy)
     }
 
     /**
@@ -97,6 +100,7 @@ class CaptureViewModel : ViewModel() {
                 }
 
                 override fun onBitmapCaptured(index: Int, timestampMs: Long, bitmap: Bitmap) {
+                    Log.d(TAG, "$index | $timestampMs | $bitmap")
                     val frameInfo = FrameInfo(index, timestampMs, bitmap)
                     doOnBitmapCaptured(frameInfo, context)
                 }

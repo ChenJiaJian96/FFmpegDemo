@@ -47,7 +47,7 @@ class FFmpegRepoImpl: CaptureRepository {
         }
     }
 
-    fun updateCaptureStrategy(strategy: FFmpegStrategy) {
+    fun updateStrategy(strategy: FFmpegStrategy) {
         captureStrategy = strategy
     }
 

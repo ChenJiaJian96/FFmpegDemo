@@ -63,15 +63,13 @@ object MMRSolution {
                     callback.onStepPassed(index + 1, STEP_OUTPUT)
                 }
             }
-
-
         }
     }
 
     private fun doExtractor(mmr: MediaMetadataRetriever, videoSize: Size, positionMs: Long): Bitmap? {
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                Log.e(TAG, "[doExtractor] | getScaledFrameAtTime time = $positionMs ms")
+                Log.d(TAG, "[doExtractor] | getScaledFrameAtTime time = $positionMs ms")
                 mmr.getScaledFrameAtTime(
                     positionMs.msToUs(),
                     CAPTURE_OPTION,

@@ -1,35 +1,61 @@
 package com.igniter.ffmpegtest.data.repository
 
+import android.util.Log
 import com.igniter.ffmpegtest.data.data_source.FFmpegSolution
-import com.igniter.ffmpegtest.data.utils.MsToS
+import com.igniter.ffmpegtest.data.utils.msToS
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
-import com.igniter.ffmpegtest.domain.bean.CaptureStrategy
+import com.igniter.ffmpegtest.domain.bean.FFmpegStrategy
 import com.igniter.ffmpegtest.domain.repository.CaptureRepository
+import kotlin.concurrent.thread
 
 class FFmpegRepoImpl: CaptureRepository {
 
-    private var captureStrategy = CaptureStrategy()
+    private var captureStrategy = FFmpegStrategy()
+
+    private var threadCount = 1
 
     override fun captureFrames(
         videoPath: String,
-        totalNum: Int,
-        callback: CaptureFrameListener,
-        startPos: Int,
-        startTimeInMs: Long
+        frameCount: Int,
+        callback: CaptureFrameListener
     ) {
-        FFmpegSolution.capture(
-            videoPath = videoPath,
-            startTimeInS = startTimeInMs.MsToS().toInt(),
-            startPos = startPos,
-            totalNum = totalNum,
-            enableMultiThread = captureStrategy.enableMultiThread,
-            strategyIndex = captureStrategy.strategyIndex,
-            seekFlagIndex = captureStrategy.seekFlagIndex,
-            callback = callback
-        )
+        val perThreadExecuteCount = frameCount / threadCount
+
+        repeat(threadCount) { index ->
+            val startPosInCurrentThread = perThreadExecuteCount * index
+            val startTimeMs = index * perThreadExecuteCount * 1000.toLong()
+            thread(
+                name = """
+                Thread $index:
+                positionInfo: [startPos: $startPosInCurrentThread ~ endPos: ${startPosInCurrentThread + perThreadExecuteCount})
+                startTimeMs = $startTimeMs
+            """.trimIndent()
+            ) {
+                Log.e(TAG, Thread.currentThread().name)
+
+                FFmpegSolution.capture(
+                    videoPath = videoPath,
+                    startTimeInS = startTimeMs.msToS().toInt(),
+                    startPos = startPosInCurrentThread,
+                    totalNum = perThreadExecuteCount,
+                    enableMultiThread = false,
+                    strategyIndex = captureStrategy.strategyIndex,
+                    seekFlagIndex = captureStrategy.seekFlagIndex,
+                    callback = callback
+                )
+            }
+        }
     }
 
-    fun updateCaptureStrategy(strategy: CaptureStrategy) {
-        this.captureStrategy = strategy
+    fun updateCaptureStrategy(strategy: FFmpegStrategy) {
+        captureStrategy = strategy
+    }
+
+    fun updateThreadCount(count: Int) {
+        threadCount = count
+    }
+
+    companion object {
+        private const val TAG = "FFmpegRepoImpl"
     }
 }

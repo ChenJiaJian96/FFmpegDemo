@@ -13,12 +13,10 @@ class MediaCodecRepoImpl: CaptureRepository {
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun captureFrames(
         videoPath: String,
-        totalNum: Int,
-        callback: CaptureFrameListener,
-        startPos: Int,
-        startTimeInMs: Long
+        frameCount: Int,
+        callback: CaptureFrameListener
     ) {
-        MediaCodecSolution.captureFrames(videoPath, totalNum, callback, scale)
+        MediaCodecSolution.captureFrames(videoPath, frameCount, callback, scale)
     }
 
     fun updateScale(scale: Int) {

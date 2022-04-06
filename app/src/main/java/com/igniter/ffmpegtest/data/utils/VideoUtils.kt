@@ -4,10 +4,11 @@ import android.util.Size
 
 object VideoUtils {
 
-
-
     /**
-     * 通过传入预期尺寸和视频原尺寸获取最终导出
+     * get final valid output size for media
+     *
+     * @param target expected size
+     * @param raw media original size
      */
     fun getExpectedSize(target: Size, raw: Size): Size {
         if (target.width <= 0) {
@@ -28,4 +29,4 @@ fun Long.msToUs() = this * TIME_UNIT
 
 fun Long.usToMs(): Long = this / TIME_UNIT
 
-fun Long.MsToS(): Long = this / TIME_UNIT
+fun Long.msToS(): Long = this / TIME_UNIT

@@ -3,7 +3,7 @@ package com.igniter.ffmpegtest.domain.bean
 /**
  * 抽帧策略选择封装类
  */
-class CaptureStrategy {
+class FFmpegStrategy {
 
     /**
      * 是否支持多线程抽帧

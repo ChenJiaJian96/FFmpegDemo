@@ -10,12 +10,10 @@ class MMRRepoImpl : CaptureRepository {
 
     override fun captureFrames(
         videoPath: String,
-        totalNum: Int,
-        callback: CaptureFrameListener,
-        startPos: Int,
-        startTimeInMs: Long
+        frameCount: Int,
+        callback: CaptureFrameListener
     ) {
-        MMRSolution.captureFrames(videoPath, totalNum, callback, scale)
+        MMRSolution.captureFrames(videoPath, frameCount, callback, scale)
     }
 
     fun updateScale(scale: Int) {

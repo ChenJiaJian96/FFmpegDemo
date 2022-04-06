@@ -8,9 +8,9 @@ import android.widget.CheckBox
 import android.widget.RadioGroup
 import android.widget.TextView
 import com.igniter.ffmpeg.R
-import com.igniter.ffmpegtest.domain.bean.CaptureStrategy
+import com.igniter.ffmpegtest.domain.bean.FFmpegStrategy
 
-typealias CaptureStrategyCallbackListener = (View, CaptureStrategy) -> Unit
+typealias CaptureStrategyCallbackListener = (View, FFmpegStrategy) -> Unit
 
 class SelectStrategyDialog(context: Context) : Dialog(context, R.style.CommonDialog) {
 
@@ -59,8 +59,8 @@ class SelectStrategyDialog(context: Context) : Dialog(context, R.style.CommonDia
         }
     }
 
-    private fun buildCaptureStrategy(): CaptureStrategy {
-        return CaptureStrategy().also {
+    private fun buildCaptureStrategy(): FFmpegStrategy {
+        return FFmpegStrategy().also {
             it.enableMultiThread = multiThreadEnabledBox.isChecked
             it.strategyIndex = strategyButtonIdList.indexOf(strategyRadioGroup.checkedRadioButtonId)
             it.seekFlagIndex = seekFlagButtonIdList.indexOf(seekFlagRadioGroup.checkedRadioButtonId)

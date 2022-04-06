@@ -298,8 +298,7 @@ Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env
                        seek_flag,
                        seek_pos_us,
                        last_seek_pos_us,
-                       strategy_index
-                           == 1);
+                       strategy_index == 1);
 
     // region 使用 packet 开始读取视频
     // packet -> frame
@@ -335,7 +334,8 @@ Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env
     }
     // endregion
     // decode finished
-    invoke_step_passed(env, capture_frame_listener, start_index + index + 1, 1);
+    int step_pos = start_index + index + 1;
+    invoke_step_passed(env, capture_frame_listener, step_pos, 1);
 
     LOGD("开始转换视频帧数据到图像帧数据")
     sws_scale(sws_context,
@@ -353,19 +353,19 @@ Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env
     }
 
     // 回调 Bitmap 对象
+    int frame_pos = start_index + index;
     result = invoke_bitmap_callback(env,
                                     capture_frame_listener,
-                                    index,
+                                    frame_pos,
                                     seek_pos_us * 1000 / AV_TIME_BASE,
                                     bitmap);
     if (result == 0) {
-      LOGD("invoke bitmap callback success. index: %d", index)
+      LOGD("invoke bitmap callback success. index: %d", frame_pos)
     } else {
-      LOGE("invoke bitmap callback failed. index: %d", index)
+      LOGE("invoke bitmap callback failed. index: %d", frame_pos)
     }
     // output finished
-    invoke_step_passed(env, capture_frame_listener, index
-        + 1, 2);
+    invoke_step_passed(env, capture_frame_listener, step_pos, 2);
     // endregion
   }
 

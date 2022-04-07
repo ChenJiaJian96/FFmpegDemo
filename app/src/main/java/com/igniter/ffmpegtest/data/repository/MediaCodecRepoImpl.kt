@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import com.igniter.ffmpegtest.data.data_source.mediacodec.MediaCodecSolution
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
 import com.igniter.ffmpegtest.domain.repository.CaptureRepository
+import kotlin.concurrent.thread
 
 class MediaCodecRepoImpl: CaptureRepository {
 
@@ -16,7 +17,9 @@ class MediaCodecRepoImpl: CaptureRepository {
         frameCount: Int,
         callback: CaptureFrameListener
     ) {
-        MediaCodecSolution.captureFrames(videoPath, frameCount, callback, scale)
+        thread {
+            MediaCodecSolution.captureFrames(videoPath, frameCount, callback, scale)
+        }
     }
 
     fun updateScale(scale: Int) {

@@ -32,9 +32,9 @@ class FrameListAdapter(private val context: Context, private val num: Int) :
         }
     }
 
-    fun onBitmapUpdated(frameInfo: FrameInfo) {
-        frameInfoList[frameInfo.index] = frameInfo
-        notifyItemChanged(frameInfo.index)
+    fun onBitmapUpdated(index: Int, frameInfo: FrameInfo?) {
+        frameInfoList[index] = frameInfo
+        notifyItemChanged(index)
     }
 
     override fun getItemId(position: Int): Long = 0

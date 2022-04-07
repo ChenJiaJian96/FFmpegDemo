@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.igniter.ffmpeg.R
 import com.igniter.ffmpegtest.data.repository.FFmpegRepoImpl
 import com.igniter.ffmpegtest.data.repository.MMRRepoImpl
@@ -16,6 +17,9 @@ import com.igniter.ffmpegtest.domain.bean.FFmpegStrategy
 import com.igniter.ffmpegtest.domain.bean.FrameInfo
 import com.igniter.ffmpegtest.domain.bean.RepoType
 import com.igniter.ffmpegtest.domain.repository.CaptureRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -48,8 +52,8 @@ class CaptureViewModel : ViewModel() {
     /**
      * 本地缓存帧数量
      */
-    val cacheFrameUpdatedIndex: LiveData<Int> get() = _cacheFrameUpdatedIndex
-    private val _cacheFrameUpdatedIndex: MutableLiveData<Int> = MutableLiveData()
+    val cacheFrameUpdatedIndex: StateFlow<Int> get() = _cacheFrameUpdatedIndex
+    private val _cacheFrameUpdatedIndex: MutableStateFlow<Int> = MutableStateFlow(0)
 
     /**
      * 最近回调的耗时数据
@@ -73,23 +77,21 @@ class CaptureViewModel : ViewModel() {
             RepoType.MMR -> MMRRepoImpl()
             RepoType.MediaCodec -> MediaCodecRepoImpl()
         }
+
+        clearCache()
     }
 
     fun updateFFmpegStrategy(ffmpegStrategy: FFmpegStrategy) {
         Log.d(TAG, "updateFFmpegStrategy.")
         (captureFrameRepo as? FFmpegRepoImpl)?.updateStrategy(ffmpegStrategy)
+
+        clearCache()
     }
 
     /**
      * 执行抽帧
      */
     fun startCapture(context: Context) {
-        clearCache()
-
-        captureFrames(context)
-    }
-
-    private fun captureFrames(context: Context) {
         startTimeMs = System.currentTimeMillis()
         captureFrameRepo.captureFrames(
             videoPath = videoPath,
@@ -155,7 +157,9 @@ class CaptureViewModel : ViewModel() {
 
     private fun onBitmapUpdated(frameInfo: FrameInfo) {
         frameInfoList[frameInfo.index] = frameInfo
-        _cacheFrameUpdatedIndex.postValue(frameInfo.index)
+        viewModelScope.launch {
+            _cacheFrameUpdatedIndex.emit(frameInfo.index)
+        }
     }
 
     companion object {

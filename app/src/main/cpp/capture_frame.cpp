@@ -217,13 +217,11 @@ Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env
   // region 将 format_context 中视频流信息的 codec_parameter 传入 codec_context
   AVCodecContext *video_codec_context = avcodec_alloc_context3(nullptr);
   if (enable_multi_thread) {
-    video_codec_context->
-        thread_count = 8;
+    video_codec_context->thread_count = 8;
   }
   AVCodecParameters *video_codec_params =
       format_context->streams[video_stream_index]->codecpar;
-  avcodec_parameters_to_context(video_codec_context, video_codec_params
-  );
+  avcodec_parameters_to_context(video_codec_context, video_codec_params);
   // 通过 codec_id 来查找视频解码器
   AVCodec *video_decoder = avcodec_find_decoder(video_codec_context->codec_id);
   if (video_decoder == nullptr) {

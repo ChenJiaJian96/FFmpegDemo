@@ -1,10 +1,12 @@
 package com.igniter.ffmpegtest.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ProgressBar
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
@@ -22,8 +24,14 @@ import com.igniter.ffmpegtest.ui.common.VideoExtractInfoDialog
 import com.igniter.ffmpegtest.viewmodel.BarChartViewModel
 import com.igniter.ffmpegtest.viewmodel.CaptureViewModel
 import com.igniter.ffmpegtest.viewmodel.CaptureViewModel.Companion.FRAME_NUM
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
+
+    companion object {
+        private const val TAG = "CaptureToolActivity"
+    }
 
     private lateinit var progressBar: ProgressBar
     private lateinit var frameListView: RecyclerView
@@ -70,9 +78,10 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
     private fun initProgressBar() {
         progressBar = findViewById(R.id.progress_bar)
         progressBar.max = FRAME_NUM
-        captureViewModel.cacheFrameUpdatedIndex.observe(this) { _ ->
-            progressBar.progress = captureViewModel.frameInfoList.count {
-                it != null
+        lifecycleScope.launch {
+            captureViewModel.cacheFrameUpdatedIndex.collect { index ->
+                Log.d(TAG, "cacheFrameUpdatedIndex: $index update progress")
+                progressBar.progress = captureViewModel.frameInfoList.count { it != null }
             }
         }
     }
@@ -85,9 +94,10 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
                 orientation = HORIZONTAL
             }
         }
-        captureViewModel.cacheFrameUpdatedIndex.observe(this) { index ->
-            captureViewModel.frameInfoList[index]?.also { newFrame ->
-                listAdapter.onBitmapUpdated(newFrame)
+        lifecycleScope.launch {
+            captureViewModel.cacheFrameUpdatedIndex.collect { index ->
+                Log.d(TAG, "cacheFrameUpdatedIndex: $index update frames")
+                listAdapter.onBitmapUpdated(index, captureViewModel.frameInfoList[index])
             }
         }
     }

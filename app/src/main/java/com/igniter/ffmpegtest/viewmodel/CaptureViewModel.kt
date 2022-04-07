@@ -66,7 +66,8 @@ class CaptureViewModel : ViewModel() {
      */
     val frameInfoList: CopyOnWriteArrayList<FrameInfo?> = CopyOnWriteArrayList(arrayOfNulls(FRAME_NUM))
 
-    private var captureFrameRepo: CaptureRepository = FFmpegRepoImpl()
+    var captureFrameRepo: CaptureRepository = FFmpegRepoImpl()
+        private set
 
     private var startTimeMs: Long = 0L
 

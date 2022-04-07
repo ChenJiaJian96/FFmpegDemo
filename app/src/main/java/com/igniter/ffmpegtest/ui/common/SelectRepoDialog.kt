@@ -19,6 +19,7 @@ class SelectRepoDialog(context: Context) : Dialog(context, R.style.CommonDialog)
 
     var leftMessage: String = context.getString(R.string.app_cancel)
     var rightMessage: String = context.getString(R.string.app_confirm)
+    var initType: RepoType = RepoType.FFmpeg
     var confirmListener: CaptureRepoCallbackListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +34,8 @@ class SelectRepoDialog(context: Context) : Dialog(context, R.style.CommonDialog)
         repoRadioGroup = findViewById(R.id.repo_radio_group)
         leftView = findViewById(R.id.tv_left)
         rightView = findViewById(R.id.tv_right)
+
+        repoRadioGroup.check(getCheckIdByRepoType(initType))
     }
 
     private fun bindButtonView() {
@@ -49,10 +52,18 @@ class SelectRepoDialog(context: Context) : Dialog(context, R.style.CommonDialog)
     }
 
     private fun getCurrentSelectedRepoType(): RepoType {
-        return when(repoRadioGroup.checkedRadioButtonId) {
+        return when (repoRadioGroup.checkedRadioButtonId) {
             R.id.rb_mediacodec -> RepoType.MediaCodec
             R.id.rb_ffmpeg -> RepoType.FFmpeg
             else -> RepoType.MMR
+        }
+    }
+
+    private fun getCheckIdByRepoType(type: RepoType): Int {
+        return when (type) {
+            RepoType.FFmpeg -> R.id.rb_ffmpeg
+            RepoType.MMR -> R.id.rb_mmr
+            RepoType.MediaCodec -> R.id.rb_mediacodec
         }
     }
 }

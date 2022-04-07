@@ -5,10 +5,11 @@ import com.igniter.ffmpegtest.data.data_source.FFmpegSolution
 import com.igniter.ffmpegtest.data.utils.msToS
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
 import com.igniter.ffmpegtest.domain.bean.FFmpegStrategy
+import com.igniter.ffmpegtest.domain.bean.RepoType
 import com.igniter.ffmpegtest.domain.repository.CaptureRepository
 import kotlin.concurrent.thread
 
-class FFmpegRepoImpl: CaptureRepository {
+class FFmpegRepoImpl(override val type: RepoType = RepoType.FFmpeg) : CaptureRepository {
 
     private var captureStrategy = FFmpegStrategy()
 

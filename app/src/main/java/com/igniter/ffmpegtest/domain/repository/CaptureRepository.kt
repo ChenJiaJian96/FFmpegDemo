@@ -1,9 +1,12 @@
 package com.igniter.ffmpegtest.domain.repository
 
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
+import com.igniter.ffmpegtest.domain.bean.RepoType
 
 
 interface CaptureRepository {
+
+    val type: RepoType
 
     /**
      * Capture Frames

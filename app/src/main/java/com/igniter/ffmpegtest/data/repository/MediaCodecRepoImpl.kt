@@ -4,10 +4,11 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.igniter.ffmpegtest.data.data_source.mediacodec.MediaCodecSolution
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
+import com.igniter.ffmpegtest.domain.bean.RepoType
 import com.igniter.ffmpegtest.domain.repository.CaptureRepository
 import kotlin.concurrent.thread
 
-class MediaCodecRepoImpl: CaptureRepository {
+class MediaCodecRepoImpl(override val type: RepoType = RepoType.MediaCodec) : CaptureRepository {
 
     private var scale: Int = 1
 

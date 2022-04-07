@@ -118,6 +118,7 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
         selectRepoBtn = findViewById(R.id.select_repo)
         selectRepoBtn.setOnClickListener {
             SelectRepoDialog(this).also { dialog ->
+                dialog.initType = captureViewModel.captureFrameRepo.type
                 dialog.confirmListener = { _, repoType ->
                     captureViewModel.switchCaptureRepository(repoType = repoType)
                 }

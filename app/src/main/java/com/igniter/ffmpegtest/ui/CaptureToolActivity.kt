@@ -24,7 +24,6 @@ import com.igniter.ffmpegtest.ui.common.VideoExtractInfoDialog
 import com.igniter.ffmpegtest.viewmodel.BarChartViewModel
 import com.igniter.ffmpegtest.viewmodel.CaptureViewModel
 import com.igniter.ffmpegtest.viewmodel.CaptureViewModel.Companion.FRAME_NUM
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
@@ -79,7 +78,7 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
         progressBar = findViewById(R.id.progress_bar)
         progressBar.max = FRAME_NUM
         lifecycleScope.launch {
-            captureViewModel.cacheFrameUpdatedIndex.collect { index ->
+            captureViewModel.cacheFrameUpdatedIndex.observe(this@CaptureToolActivity) { index ->
                 Log.d(TAG, "cacheFrameUpdatedIndex: $index update progress")
                 progressBar.progress = captureViewModel.frameInfoList.count { it != null }
             }
@@ -95,7 +94,7 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
             }
         }
         lifecycleScope.launch {
-            captureViewModel.cacheFrameUpdatedIndex.collect { index ->
+            captureViewModel.cacheFrameUpdatedIndex.observe(this@CaptureToolActivity) { index ->
                 Log.d(TAG, "cacheFrameUpdatedIndex: $index update frames")
                 listAdapter.onBitmapUpdated(index, captureViewModel.frameInfoList[index])
             }

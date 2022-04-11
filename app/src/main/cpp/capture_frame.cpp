@@ -1,5 +1,32 @@
 #include <jni.h>
 #include "utils.h"
+#include <android/trace.h>
+#include <dlfcn.h>
+
+void *(*ATrace_beginSection)(const char *sectionName);
+void *(*ATrace_endSection)(void);
+
+typedef void *(*fp_ATrace_beginSection)(const char *sectionName);
+typedef void *(*fp_ATrace_endSection)(void);
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_prepareCaptureEnv(
+    JNIEnv *env,
+    jobject thiz) {
+  // Retrieve a handle to libandroid.
+  void *lib = dlopen("libandroid.so", RTLD_NOW || RTLD_LOCAL);
+
+  // Access the native tracing functions.
+  if (lib != NULL) {
+    // Use dlsym() to prevent crashes on devices running Android 5.1
+    // (API level 22) or lower.
+    ATrace_beginSection = reinterpret_cast<fp_ATrace_beginSection>(dlsym(lib,
+                                                                         "ATrace_beginSection"));
+    ATrace_endSection =
+        reinterpret_cast<fp_ATrace_endSection>(dlsym(lib, "ATrace_endSection"));
+  }
+}
 
 // 创建 Bitmap
 jobject create_bitmap(JNIEnv *env, int width, int height) {
@@ -81,27 +108,6 @@ int invoke_video_info_callback(
                       height,
                       duration_ms);
   return 0;
-}
-
-void invoke_step_passed(JNIEnv *env,
-                        jobject on_bitmap_callback_listener,
-                        int index,
-                        int step) {
-  jclass javaClass = env->GetObjectClass(on_bitmap_callback_listener);
-  if (javaClass == nullptr) {
-    LOGE("Unable to find class")
-  }
-  jmethodID method_id = env->GetMethodID(javaClass,
-                                         "onStepPassed",
-                                         "(II)V");
-  if (method_id == nullptr) {
-    LOGE("Unable to find method: onStepPassed")
-    return;
-  }
-  env->CallVoidMethod(on_bitmap_callback_listener,
-                      method_id,
-                      index,
-                      step);
 }
 
 int invoke_bitmap_callback(JNIEnv *env,
@@ -281,7 +287,6 @@ Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env
   int time_base_den =
       format_context->streams[video_stream_index]->time_base.den;
   int seek_flag = get_seek_flag(seek_flag_index);
-  invoke_step_passed(env, capture_frame_listener, 0, 0);
 
   for (int index = 0; index < total_num; ++index) {
     int64_t seek_pos_us = start_time_in_s * AV_TIME_BASE + interval_us * index;
@@ -291,15 +296,18 @@ Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env
           start_time_in_s * AV_TIME_BASE + interval_us * (index - 1);
     }
 
+    ATrace_beginSection("TRACE_SEEK_FRAME");
     seek_to_target_pos(format_context,
                        video_stream_index,
                        seek_flag,
                        seek_pos_us,
                        last_seek_pos_us,
                        strategy_index == 1);
+    ATrace_endSection();
 
     // region 使用 packet 开始读取视频
     // packet -> frame
+    ATrace_beginSection("TRACE_CAPTURE_FRAME");
     while (av_read_frame(format_context, &packet) >= 0) {
       // 匹配视频流
       if (packet.stream_index != video_stream_index) {
@@ -330,11 +338,12 @@ Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env
 
       av_packet_unref(&packet);
     }
-    // endregion
     // decode finished
-    int step_pos = start_index + index + 1;
-    invoke_step_passed(env, capture_frame_listener, step_pos, 1);
+    ATrace_endSection();
+    // endregion
 
+    // region 生成 bitmap 并回调 bitmap 对象
+    ATrace_beginSection("TRACE_OUTPUT_BITMAP");
     LOGD("开始转换视频帧数据到图像帧数据")
     sws_scale(sws_context,
               pFrame
@@ -342,7 +351,6 @@ Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env
               0, src_height,
               pFrame_rgb->data, pFrame_rgb->linesize);
 
-    // region 生成 bitmap 并回调 bitmap 对象
     // 图像数据已经保存至 frame_rgb 中，用于生成 bitmap 数据
     jobject
         bitmap = convert_bitmap_by_frame(env, dst_width, dst_height, buffer);
@@ -363,7 +371,7 @@ Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env
       LOGE("invoke bitmap callback failed. index: %d", frame_pos)
     }
     // output finished
-    invoke_step_passed(env, capture_frame_listener, step_pos, 2);
+    ATrace_endSection();
     // endregion
   }
 

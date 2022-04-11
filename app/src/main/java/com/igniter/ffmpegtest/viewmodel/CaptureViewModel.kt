@@ -90,6 +90,7 @@ class CaptureViewModel : ViewModel() {
      */
     fun startCapture(context: Context) {
         startTimeMs = System.currentTimeMillis()
+
         captureFrameRepo.captureFrames(
             videoPath = videoPath,
             frameCount = captureCount,

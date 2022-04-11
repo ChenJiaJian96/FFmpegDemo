@@ -24,4 +24,6 @@ object FFmpegSolution {
         seekFlagIndex: Int,
         callback: CaptureFrameListener
     )
+
+    external fun prepareCaptureEnv()
 }

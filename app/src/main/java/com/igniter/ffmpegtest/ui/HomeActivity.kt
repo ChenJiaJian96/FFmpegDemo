@@ -29,8 +29,6 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        prepareEnv()
-
         playVideoView = findViewById(R.id.test_play_video)
         playVideoView.setOnClickListener {
             ActivityCompat.requestPermissions(
@@ -52,10 +50,6 @@ class HomeActivity : AppCompatActivity() {
         firstRadioButton.text = videoNameList[0]
         secondRadioButton = findViewById(R.id.second_radio_button)
         secondRadioButton.text = videoNameList[1]
-    }
-
-    private fun prepareEnv() {
-        System.loadLibrary("video")
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

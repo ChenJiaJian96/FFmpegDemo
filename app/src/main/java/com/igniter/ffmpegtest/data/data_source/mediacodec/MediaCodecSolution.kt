@@ -5,13 +5,16 @@ import android.media.ImageReader
 import android.media.MediaCodec
 import android.media.MediaExtractor
 import android.media.MediaFormat
+import android.os.Trace
 import android.util.Log
 import android.util.Size
+import com.igniter.ffmpegtest.data.data_source.TraceTag.TRACE_CAPTURE_FRAME
+import com.igniter.ffmpegtest.data.data_source.TraceTag.TRACE_TAG_RETRIEVE_INFO
+import com.igniter.ffmpegtest.data.data_source.TraceTag.TRACE_WHOLE_PROCESS
 import com.igniter.ffmpegtest.data.utils.VideoUtils
 import com.igniter.ffmpegtest.data.utils.msToUs
 import com.igniter.ffmpegtest.data.utils.usToMs
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
-import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener.Companion.STEP_RETRIEVE
 import java.io.IOException
 import java.nio.ByteBuffer
 
@@ -27,19 +30,19 @@ object MediaCodecSolution {
      * @link https://www.jianshu.com/p/dfddb85302bd
      */
     fun captureFrames(videoPath: String, totalNum: Int, callback: CaptureFrameListener, scale: Int) {
+        Trace.beginSection(TRACE_WHOLE_PROCESS)
+        Trace.beginSection(TRACE_TAG_RETRIEVE_INFO)
         val extractor = MediaExtractor().also {
             try {
                 it.setDataSource(videoPath)
             } catch (e: IOException) {
                 Log.e(TAG, "[captureFrames] | video open failed. filePath = $videoPath")
-                callback.onStepPassed(-1, CaptureFrameListener.STEP_FAILED)
                 return
             }
         }
         // prepare video track info
         val (index, videoFormat) = getVideoTrackInfo(extractor)
         if (videoFormat == null) {
-            callback.onStepPassed(-1, CaptureFrameListener.STEP_FAILED)
             return
         }
         extractor.selectTrack(index)
@@ -47,12 +50,12 @@ object MediaCodecSolution {
         val srcWidth = videoFormat.getInteger(MediaFormat.KEY_WIDTH)
         val srcHeight = videoFormat.getInteger(MediaFormat.KEY_HEIGHT)
         val durationMs = videoFormat.getLong(MediaFormat.KEY_DURATION).usToMs()
-        callback.onVideoInfoRetrieved(srcWidth, srcHeight, durationMs)
-        callback.onStepPassed(0, STEP_RETRIEVE)
-
         val targetWidth = srcWidth / scale
         val targetHeight = srcHeight / scale
+        callback.onVideoInfoRetrieved(srcWidth, srcHeight, durationMs)
+        Trace.endSection()
 
+        Trace.beginSection(TRACE_CAPTURE_FRAME)
         val outputSurface = createCodecOutputSurface(
             targetSize = Size(targetWidth, targetHeight),
             rawSize = Size(srcWidth, srcHeight)
@@ -60,16 +63,15 @@ object MediaCodecSolution {
         val decoder = createDecoder(videoFormat, outputSurface)
         if (decoder == null) {
             Log.e(TAG, "[captureFrames] | createDecoder is null")
-            callback.onStepPassed(-1, CaptureFrameListener.STEP_FAILED)
             return
         }
 
         decoder.start()
         try {
             doExtract(extractor, decoder, totalNum, outputSurface, callback)
+            Trace.endSection()
         } catch (e: IOException) {
             Log.e(TAG, "start exception, detail=${e.stackTraceToString()}")
-            callback.onStepPassed(-1, CaptureFrameListener.STEP_FAILED)
             return
         } finally {
             outputSurface.release()
@@ -79,6 +81,8 @@ object MediaCodecSolution {
             }
             extractor.release()
         }
+
+        Trace.endSection()
     }
 
     private fun createDecoder(videoFormat: MediaFormat, outputSurface: CodecOutputSurface): MediaCodec? {

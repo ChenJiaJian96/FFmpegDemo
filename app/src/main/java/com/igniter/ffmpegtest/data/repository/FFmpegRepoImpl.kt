@@ -1,7 +1,8 @@
 package com.igniter.ffmpegtest.data.repository
 
-import android.util.Log
+import android.os.Trace
 import com.igniter.ffmpegtest.data.data_source.FFmpegSolution
+import com.igniter.ffmpegtest.data.data_source.TraceTag
 import com.igniter.ffmpegtest.data.utils.msToS
 import com.igniter.ffmpegtest.domain.bean.CaptureFrameListener
 import com.igniter.ffmpegtest.domain.bean.FFmpegStrategy
@@ -32,18 +33,17 @@ class FFmpegRepoImpl(override val type: RepoType = RepoType.FFmpeg) : CaptureRep
                 startTimeMs = $startTimeMs
             """.trimIndent()
             ) {
-                Log.e(TAG, Thread.currentThread().name)
-
+                Trace.beginSection(TraceTag.TRACE_WHOLE_PROCESS)
                 FFmpegSolution.capture(
                     videoPath = videoPath,
-                    startTimeInS = startTimeMs.msToS().toInt(),
+                    startTimeInS = startTimeMs.msToS(),
                     startPos = startPosInCurrentThread,
                     totalNum = perThreadExecuteCount,
-                    enableMultiThread = false,
                     strategyIndex = captureStrategy.strategyIndex,
                     seekFlagIndex = captureStrategy.seekFlagIndex,
                     callback = callback
                 )
+                Trace.endSection()
             }
         }
     }

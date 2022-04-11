@@ -186,7 +186,6 @@ Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env
                                                                      jlong start_time_in_s,
                                                                      jint start_index,
                                                                      jint total_num,
-                                                                     jboolean enable_multi_thread,
                                                                      jint strategy_index,
                                                                      jint seek_flag_index,
                                                                      jobject capture_frame_listener) {
@@ -218,9 +217,8 @@ Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env
 
   // region 将 format_context 中视频流信息的 codec_parameter 传入 codec_context
   AVCodecContext *video_codec_context = avcodec_alloc_context3(nullptr);
-  if (enable_multi_thread) {
-    video_codec_context->thread_count = 8;
-  }
+  // 帧内多线程抽帧
+  video_codec_context->thread_count = 8;
   AVCodecParameters *video_codec_params =
       format_context->streams[video_stream_index]->codecpar;
   avcodec_parameters_to_context(video_codec_context, video_codec_params);

@@ -7,8 +7,6 @@ interface CaptureFrameListener {
 
     fun onBitmapCaptured(index: Int, timestampMs: Long, bitmap: Bitmap)
 
-    fun onStepPassed(index: Int, step: Int)
-
     companion object {
         const val STEP_FAILED = -1
         const val STEP_RETRIEVE = 0

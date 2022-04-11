@@ -103,34 +103,6 @@ class CaptureViewModel : ViewModel() {
                     val frameInfo = FrameInfo(index, timestampMs, bitmap)
                     doOnBitmapCaptured(frameInfo, context)
                 }
-
-                override fun onStepPassed(index: Int, step: Int) {
-//                    val currentFrameTimeMs = System.currentTimeMillis()
-//                    val curStepDurationMs = currentFrameTimeMs - lastFrameTimeMs
-//                    Log.d(TAG, "onStepPassed: index: $index, step: $step, curStepDuration: $curStepDurationMs")
-//                    when (step) {
-//                        STEP_FAILED -> {
-//                            Toast.makeText(context, "抽帧失败了，请通过日志查看原因", Toast.LENGTH_LONG).show()
-//                        }
-//                        STEP_RETRIEVE -> {
-//                            lastCaptureDuration = CaptureDuration()
-//                            lastCaptureDuration.index = index
-//                            lastCaptureDuration.retrieveMs = curStepDurationMs
-//                            _latestDurationData.postValue(lastCaptureDuration)
-//                        }
-//                        STEP_SEEK_AND_DECODE -> {
-//                            lastCaptureDuration = CaptureDuration()
-//                            lastCaptureDuration.seekAndDecodeMs = curStepDurationMs
-//                        }
-//                        STEP_OUTPUT -> {
-//                            lastCaptureDuration.index = index
-//                            lastCaptureDuration.outputMs = curStepDurationMs
-//                            _latestDurationData.postValue(lastCaptureDuration)
-//                        }
-//                    }
-//
-//                    lastFrameTimeMs = currentFrameTimeMs
-                }
             }
         )
     }

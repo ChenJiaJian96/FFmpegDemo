@@ -10,8 +10,8 @@ extern "C" {
 #include <android/native_window_jni.h>
 }
 
-#define LOGD(FORMAT, ...) __android_log_print(ANDROID_LOG_DEBUG, "video", FORMAT, ##__VA_ARGS__);
-#define LOGE(FORMAT, ...) __android_log_print(ANDROID_LOG_ERROR, "video", FORMAT, ##__VA_ARGS__);
+#define LOGD(FORMAT, ...) __android_log_print(ANDROID_LOG_DEBUG, "ffmpeg", FORMAT, ##__VA_ARGS__);
+#define LOGE(FORMAT, ...) __android_log_print(ANDROID_LOG_ERROR, "ffmpeg", FORMAT, ##__VA_ARGS__);
 
 int open_input_file(const char *path, AVFormatContext *&format_context);
 

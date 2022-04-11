@@ -20,7 +20,6 @@ object FFmpegSolution {
         startTimeInS: Long,
         startPos: Int,
         totalNum: Int,
-        enableMultiThread: Boolean,
         strategyIndex: Int,
         seekFlagIndex: Int,
         callback: CaptureFrameListener

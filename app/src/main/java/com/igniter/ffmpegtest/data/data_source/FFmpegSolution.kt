@@ -17,7 +17,7 @@ object FFmpegSolution {
      */
     external fun capture(
         videoPath: String,
-        startTimeInS: Int,
+        startTimeInS: Long,
         startPos: Int,
         totalNum: Int,
         enableMultiThread: Boolean,

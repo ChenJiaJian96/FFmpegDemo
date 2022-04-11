@@ -140,8 +140,8 @@ int invoke_bitmap_callback(JNIEnv *env,
 void seek_to_target_pos(AVFormatContext *format_context,
                         int video_stream_index,
                         int seek_flag,
-                        uint64_t seek_pos_us,
-                        uint64_t last_seek_pos_us,
+                        int64_t seek_pos_us,
+                        int64_t last_seek_pos_us,
                         bool enable_optimize) {
   if (seek_pos_us == 0 || seek_pos_us == last_seek_pos_us) {
     LOGD("av_seek_frame() passed. current_seek_pos: %ld, last_seek_pos: %ld",
@@ -170,7 +170,9 @@ void seek_to_target_pos(AVFormatContext *format_context,
 
   int result = av_seek_frame(format_context, -1, seek_pos_us, seek_flag);
   if (result < 0) {
-    LOGE("av_seek_frame() seek to %lu failed!", seek_pos_us)
+    LOGE("av_seek_frame() seek to %lu failed! errorCode: %d",
+         seek_pos_us,
+         result)
   } else {
     LOGD("av_seek_frame() seek to %lu succeed!", seek_pos_us)
   }
@@ -181,7 +183,7 @@ JNIEXPORT void JNICALL
 Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env,
                                                                      jobject thiz,
                                                                      jstring video_path,
-                                                                     jint start_time_in_s,
+                                                                     jlong start_time_in_s,
                                                                      jint start_index,
                                                                      jint total_num,
                                                                      jboolean enable_multi_thread,

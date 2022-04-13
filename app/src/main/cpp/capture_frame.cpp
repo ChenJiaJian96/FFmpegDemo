@@ -9,11 +9,8 @@ void *(*ATrace_endSection)(void);
 typedef void *(*fp_ATrace_beginSection)(const char *sectionName);
 typedef void *(*fp_ATrace_endSection)(void);
 
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_prepareCaptureEnv(
-    JNIEnv *env,
-    jobject thiz) {
+void prepare_systrace() {
+  LOGE("preparing systrace in C")
   // Retrieve a handle to libandroid.
   void *lib = dlopen("libandroid.so", RTLD_NOW || RTLD_LOCAL);
 
@@ -182,6 +179,17 @@ void seek_to_target_pos(AVFormatContext *format_context,
   } else {
     LOGD("av_seek_frame() seek to %lu succeed!", seek_pos_us)
   }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_prepareCaptureEnv(
+    JNIEnv *env,
+    jobject thiz) {
+
+  print_supported_codec_info();
+
+  prepare_systrace();
 }
 
 extern "C"

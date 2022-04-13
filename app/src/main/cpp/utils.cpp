@@ -33,3 +33,37 @@ int get_video_stream_index(const AVFormatContext *format_context) {
   }
   return video_stream_index;
 }
+
+void print_supported_codec_info() {
+  LOGE("printing supported codec info...")
+
+  char *info = (char *) malloc(40000);
+  memset(info, 0, 40000);
+
+  AVCodec *c_temp = av_codec_next(nullptr);
+
+  while (c_temp != nullptr) {
+    if (c_temp->decode != nullptr) {
+      strcat(info, "[Decode]");
+    } else {
+      strcat(info, "[Encode]");
+    }
+    switch (c_temp->type) {
+      case AVMEDIA_TYPE_VIDEO:
+        strcat(info, "[Video]");
+        break;
+      case AVMEDIA_TYPE_AUDIO:
+        strcat(info, "[Audeo]");
+        break;
+      default:
+        strcat(info, "[Other]");
+        break;
+    }
+    LOGE("%s\n", c_temp->name);
+    c_temp = c_temp->next;
+  }
+  puts(info);
+  free(info);
+
+  LOGE("printing supported codec info end...")
+}

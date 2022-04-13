@@ -18,3 +18,5 @@ int open_input_file(const char *path, AVFormatContext *&format_context);
 int check_input_stream_info(const char *path, AVFormatContext *&format_context);
 
 int get_video_stream_index(const AVFormatContext *format_context);
+
+void print_supported_codec_info();

@@ -57,6 +57,9 @@ class CaptureViewModel : ViewModel() {
     val latestDurationData: LiveData<CaptureDuration> get() = _latestDurationData
     private val _latestDurationData: MutableLiveData<CaptureDuration> = MutableLiveData()
 
+    private val _currentRepoType: MutableLiveData<RepoType> = MutableLiveData(RepoType.FFmpeg)
+    val currentRepoType: LiveData<RepoType> = _currentRepoType
+
     /**
      * 本地缓存帧列表
      */
@@ -74,6 +77,7 @@ class CaptureViewModel : ViewModel() {
             RepoType.MMR -> MMRRepoImpl()
             RepoType.MediaCodec -> MediaCodecRepoImpl()
         }
+        _currentRepoType.value = repoType
 
         clearCache()
     }

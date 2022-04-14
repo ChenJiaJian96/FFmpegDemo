@@ -17,6 +17,8 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.igniter.ffmpeg.R
+import com.igniter.ffmpegtest.data.repository.FFmpegRepoImpl
+import com.igniter.ffmpegtest.domain.bean.RepoType
 import com.igniter.ffmpegtest.ui.chart.MyAxisValueFormatter
 import com.igniter.ffmpegtest.ui.common.SelectRepoDialog
 import com.igniter.ffmpegtest.ui.common.SelectStrategyDialog
@@ -31,12 +33,6 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
     companion object {
         private const val TAG = "CaptureToolActivity"
     }
-
-    private lateinit var progressBar: ProgressBar
-    private lateinit var frameListView: RecyclerView
-    private lateinit var startCaptureBtn: Button // 视频帧列表容器
-    private lateinit var selectRepoBtn: Button
-    private lateinit var barChart: BarChart // 抽帧数据展示容器
 
     private val listAdapter = FrameListAdapter(this, FRAME_NUM)
 
@@ -75,7 +71,7 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
     }
 
     private fun initProgressBar() {
-        progressBar = findViewById(R.id.progress_bar)
+        val progressBar: ProgressBar = findViewById(R.id.progress_bar)
         progressBar.max = FRAME_NUM
         lifecycleScope.launch {
             captureViewModel.cacheFrameUpdatedIndex.observe(this@CaptureToolActivity) { index ->
@@ -86,7 +82,7 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
     }
 
     private fun initRecyclerView() {
-        frameListView = findViewById(R.id.rv_frame_list)
+        val frameListView: RecyclerView = findViewById(R.id.rv_frame_list)
         with(frameListView) {
             adapter = listAdapter
             layoutManager = LinearLayoutManager(this@CaptureToolActivity).apply {
@@ -107,14 +103,14 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
     }
 
     private fun initStartCaptureBtn() {
-        startCaptureBtn = findViewById(R.id.start_capture)
+        val startCaptureBtn: Button = findViewById(R.id.start_capture)
         startCaptureBtn.setOnClickListener {
             captureViewModel.startCapture(this)
         }
     }
 
     private fun initSelectRepoBtn() {
-        selectRepoBtn = findViewById(R.id.select_repo)
+        val selectRepoBtn: Button = findViewById(R.id.select_repo)
         selectRepoBtn.setOnClickListener {
             SelectRepoDialog(this).also { dialog ->
                 dialog.initType = captureViewModel.captureFrameRepo.type
@@ -126,17 +122,22 @@ class CaptureToolActivity : AppCompatActivity(), OnChartValueSelectedListener {
     }
 
     private fun initSelectStrategyBtn() {
-        findViewById<Button>(R.id.select_strategy).setOnClickListener {
+        val ffmpegStrategyBtn: Button = findViewById(R.id.select_ffmpeg_strategy)
+        ffmpegStrategyBtn.setOnClickListener {
             SelectStrategyDialog(this).also { dialog ->
+                dialog.initStrategy = (captureViewModel.captureFrameRepo as FFmpegRepoImpl).captureStrategy
                 dialog.confirmListener = { _, strategy ->
                     captureViewModel.updateFFmpegStrategy(strategy)
                 }
             }.show()
         }
+        captureViewModel.currentRepoType.observe(this) {
+            ffmpegStrategyBtn.isEnabled = it == RepoType.FFmpeg
+        }
     }
 
     private fun initChart() {
-        barChart = findViewById(R.id.bar_chart)
+        val barChart: BarChart = findViewById(R.id.bar_chart)
         with(barChart) {
             setOnChartValueSelectedListener(this@CaptureToolActivity)
             description.isEnabled = false

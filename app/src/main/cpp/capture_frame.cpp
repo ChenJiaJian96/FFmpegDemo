@@ -295,6 +295,7 @@ Java_com_igniter_ffmpegtest_data_data_1source_FFmpegSolution_capture(JNIEnv *env
   int time_base_den =
       format_context->streams[video_stream_index]->time_base.den;
   int seek_flag = get_seek_flag(seek_flag_index);
+  LOGD("seek flag: %d", seek_flag)
 
   for (int index = 0; index < total_num; ++index) {
     int64_t seek_pos_us = start_time_in_s * AV_TIME_BASE + interval_us * index;

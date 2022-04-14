@@ -9,6 +9,7 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import com.igniter.ffmpeg.R
 import com.igniter.ffmpegtest.domain.bean.FFmpegStrategy
+import com.igniter.ffmpegtest.domain.bean.FFmpegStrategy.Companion.DEFAULT_ENABLE_MULTI_THREAD
 
 typealias CaptureStrategyCallbackListener = (View, FFmpegStrategy) -> Unit
 
@@ -25,6 +26,8 @@ class SelectStrategyDialog(context: Context) : Dialog(context, R.style.CommonDia
     var rightMessage: String = context.getString(R.string.app_confirm)
     var confirmListener: CaptureStrategyCallbackListener? = null
 
+    var initStrategy: FFmpegStrategy? = null
+
     private val strategyButtonIdList =
         arrayListOf(R.id.first_strategy_button, R.id.second_strategy_button)
     private val seekFlagButtonIdList =
@@ -35,6 +38,7 @@ class SelectStrategyDialog(context: Context) : Dialog(context, R.style.CommonDia
         setContentView(R.layout.dialog_select_strategy)
 
         initView()
+        initData()
         bindButtonView()
     }
 
@@ -44,6 +48,12 @@ class SelectStrategyDialog(context: Context) : Dialog(context, R.style.CommonDia
         seekFlagRadioGroup = findViewById(R.id.seek_flag_radio_group)
         leftView = findViewById(R.id.tv_left)
         rightView = findViewById(R.id.tv_right)
+    }
+
+    private fun initData() {
+        multiThreadEnabledBox.isChecked = initStrategy?.enableMultiThread ?: DEFAULT_ENABLE_MULTI_THREAD
+        strategyRadioGroup.check(strategyButtonIdList[initStrategy?.strategyIndex ?: 0])
+        seekFlagRadioGroup.check(seekFlagButtonIdList[initStrategy?.seekFlagIndex ?: 0])
     }
 
     private fun bindButtonView() {

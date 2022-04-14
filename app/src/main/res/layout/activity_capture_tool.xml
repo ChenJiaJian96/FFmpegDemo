@@ -17,7 +17,7 @@
                 android:text="选择抽帧方式" />
 
         <Button
-                android:id="@+id/select_strategy"
+                android:id="@+id/select_ffmpeg_strategy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="选择软解策略" />

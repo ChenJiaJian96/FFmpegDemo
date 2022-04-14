@@ -12,7 +12,8 @@ import kotlin.concurrent.thread
 
 class FFmpegRepoImpl(override val type: RepoType = RepoType.FFmpeg) : CaptureRepository {
 
-    private var captureStrategy = FFmpegStrategy()
+    var captureStrategy = FFmpegStrategy()
+        private set
 
     private var threadCount = 1
 
